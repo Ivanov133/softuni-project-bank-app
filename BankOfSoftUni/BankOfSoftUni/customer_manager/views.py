@@ -66,11 +66,12 @@ class ProfileDetailsView(auth_mixin.LoginRequiredMixin, views.DetailView):
 def search_customer_by_parameter(request):
     customer = None
     search_by = None
+    searched_value = None
 
     # Depending on what the search parameter is, different query is sent / or filter is made
     if request.method == 'GET':
-        searched_value = request.GET.get('parameter')
         for form_input_field in QueryDict.dict(request.GET):
+            searched_value = request.GET.get(f'{form_input_field}')
             search_by = form_input_field
             if form_input_field == 'ucn':
                 try:
@@ -84,12 +85,17 @@ def search_customer_by_parameter(request):
 
         if customer:
             context = {
-                'customer': customer
+                'customer': customer[0]
             }
         else:
-            context = {
-                'customer': f'Could not find customer with {search_by}: {searched_value}!'
-            }
+            if search_by == None:
+                context = {
+                    'initial_page_load': None
+                }
+            else:
+                context = {
+                    'customer': f'Could not find customer with {search_by}: {searched_value}!'
+                }
 
         return render(request, 'customer_dashboard/customer_search.html', context)
 

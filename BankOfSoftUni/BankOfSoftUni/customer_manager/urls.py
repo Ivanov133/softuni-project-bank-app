@@ -1,6 +1,7 @@
 from django.urls import path
 
-from BankOfSoftUni.customer_manager.views import search_customer_by_parameter, CustomerRegisterView, customer_details
+from BankOfSoftUni.customer_manager.views import search_customer_by_parameter, CustomerRegisterView, customer_details, \
+    CustomerEditView
 
 urlpatterns = (
     path('details/<int:pk>/', customer_details, name='customer details'),
