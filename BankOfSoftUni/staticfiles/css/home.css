@@ -9,14 +9,15 @@ body {
 
 nav,
 footer {
-    background-color: #0B0C10;
+    background-image: url("https://i.ibb.co/jMLRrP6/photo-1636953056323-9c09fdd74fa6.jpg");
     width: 100%;
     display: flex;
-    justify-content: flex-start;
+    justify-content: center;
     align-items: center;
     padding: 0 5px 0 3px;
-    margin: auto;
+    margin-bottom: 25px;
     color: darkorange;
+
 }
 
 nav a {
@@ -28,6 +29,7 @@ nav a {
     font-weight: bold;
     position: relative;
     margin: 20px;
+    justify-content: space-between;
 }
 
 nav a:hover {
@@ -68,43 +70,40 @@ select {
 nav > img {
     width: 100px;
     height: 80px;
-    margin-left: 0.2em;
-    margin-right: 0.2em;
-    position: center;
-}
 
-
-*, *:before, *:after {
-    box-sizing: border-box;
 }
 
 
 select {
     border-radius: 10px;
-
 }
 
 /*CUS DETAILS*/
-/*rounded img*/
 
 form {
-    background-image: url("https://i.ibb.co/1zPH5JF/Black-Hexagon.jpg");
+    background-image: url("https://i.ibb.co/3h37wvt/9f9fe69eebcd03462913b049c3082767.jpg");
     margin: auto;
     text-align: left;
-    width: 50%;
-    border: 5px solid darkorange;
-    padding: 5px;
+    width: 55%;
+    border: 1.5px solid darkorange;
+    padding: 50px;
+    margin-bottom: 10px;
     color: darkorange;
-    font-size: large;
+    font-size: medium;
     font-weight: bold;
 }
 
 input {
-    padding: 5px;
+    padding: 8px;
     margin: 8px 0;
     box-shadow: 0 0 15px 4px rgba(0, 0, 0, 0.06);
     border-radius: 50px;
     width: 100%;
+    background-color: black;
+    color: darkorange;
+    font-size: 15px;
+    font-weight: bold;
+    font-family: "Bitstream Vera Sans Mono", Monaco, "Courier New", Courier, monospace;
 }
 
 /*admin dropdown panel*/
@@ -165,3 +164,4 @@ input {
     overflow-x: hidden;
     overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
 }
+

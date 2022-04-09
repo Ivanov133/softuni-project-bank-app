@@ -22,7 +22,9 @@
         </form>
     </div>
     <div id="search_result">
+    {% if not initial_page_load %}
         <a href="{% url 'customer details' customer.id %}">See customer {{ customer.full_name }} details</a>
+    {% endif %}
     </div>
 
 {% endblock %}

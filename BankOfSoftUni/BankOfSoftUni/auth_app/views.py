@@ -1,10 +1,12 @@
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views import generic as views
-from django.contrib.auth import views as auth_views, get_user_model
+from django.contrib.auth import views as auth_views
 from django.contrib.auth import logout
+from django.contrib.auth import mixins as auth_mixin
 
 from BankOfSoftUni.auth_app.forms import CreateProfileForm
+from BankOfSoftUni.auth_app.models import Profile
 
 
 class UserRegisterView(views.CreateView):
@@ -16,6 +18,7 @@ class UserRegisterView(views.CreateView):
         if self.success_url:
             return self.success_url
         return super().success_url()
+
 
 class UserLoginView(auth_views.LoginView):
     template_name = 'users/login.html'
@@ -39,3 +42,8 @@ class HomeView(views.TemplateView):
 def logout_view(request):
     logout(request)
     return redirect('index')
+
+
+class ProfileDetailsView(auth_mixin.LoginRequiredMixin, views.DetailView):
+    model = Profile
+    template_name = 'users/profile_details.html'

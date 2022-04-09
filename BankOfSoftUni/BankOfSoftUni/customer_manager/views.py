@@ -2,33 +2,13 @@ from django.http import QueryDict
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import generic as views
-from django.contrib.auth import mixins as auth_mixin
-from BankOfSoftUni.auth_app.models import Profile
 from BankOfSoftUni.customer_manager.forms import CreateCustomerForm, AccountOpenForm, EditCustomerForm
 from BankOfSoftUni.customer_manager.models import Customer
 
 
 class CustomerPanelView(views.DetailView):
     model = Customer
-    # form_class = AccountOpenForm
     template_name = 'customer_dashboard/customer_details.html'
-    # success_url = reverse_lazy('index')
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     context['customer'] = {
-    #         self.
-    #     }
-    #     return {
-    #         'context': context
-    #     }
-
-    # def get_form_kwargs(self):
-    #     kwargs = super().get_form_kwargs()
-    #     kwargs['user'] = self.request.user
-    #     kwargs['customer'] = Customer.objects.get(pk=self.kwargs['pk'])
-    #     print(type(self.kwargs['pk']))
-    #     return kwargs
 
 
 class CustomerRegisterView(views.CreateView):
@@ -57,10 +37,7 @@ class CustomerEditView(views.CreateView):
     success_url = reverse_lazy('customer details')
 
 
-class ProfileDetailsView(auth_mixin.LoginRequiredMixin, views.DetailView):
-    model = Profile
-    template_name = 'users/profile_details.html'
-    context_object_name = 'p_details'
+
 
 
 def search_customer_by_parameter(request):
@@ -90,10 +67,11 @@ def search_customer_by_parameter(request):
         else:
             if search_by == None:
                 context = {
-                    'initial_page_load': None
+                    'initial_page_load': True
                 }
             else:
                 context = {
+                    'initial_page_load': False,
                     'customer': f'Could not find customer with {search_by}: {searched_value}!'
                 }
 

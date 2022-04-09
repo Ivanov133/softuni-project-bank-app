@@ -18,10 +18,6 @@ class BankUser(auth_models.AbstractUser, auth_models.PermissionsMixin):
         auto_now_add=True,
     )
 
-    # is_superuser = models.CharField(
-    #     max_length=5,
-    #     choices=[('True', 'True'), ('False', 'False')],
-    # )
     USERNAME_FIELD = 'username'
 
     objects = BankUserManager()
@@ -87,3 +83,7 @@ class Profile(models.Model):
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}: --{self.employee_role}--'
+
+    @property
+    def full_name(self):
+        return f'{self.first_name} {self.last_name}'
