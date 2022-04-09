@@ -1,0 +1,12 @@
+{% extends 'main/base.html' %}
+
+{% block page_content %}
+    <div>
+    <form method="POST" action="{% url 'customer edit' 1 %}" enctype="multipart/form-data">
+        {{ form }}
+        {% csrf_token %}
+        <button type="submit">Commit changes</button>
+    </form>
+
+    </div>
+{% endblock %}

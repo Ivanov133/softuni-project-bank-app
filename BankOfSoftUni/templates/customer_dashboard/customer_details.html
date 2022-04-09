@@ -1,17 +1,6 @@
 {% extends 'main/base.html' %}
 
 {% block page_content %}
-
-{#    <div id="customer-details">#}
-{#        {{ customer.full_name }}#}
-{#    </div>#}
-{#    <a href="{% url 'account create' %}">Open account</a>#}
-{#    <form method="POST" enctype="multipart/form-data">#}
-{#        {{ form }}#}
-{#        {% csrf_token %}#}
-{#        <button class="btn btn-primary mt-2" type="submit">Open account</button>#}
-{#    </form>#}
-
     {{ customer }}
     {{ user }}
     {% for acc in accounts %}

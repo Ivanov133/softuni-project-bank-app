@@ -3,12 +3,8 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import generic as views
 from django.contrib.auth import mixins as auth_mixin
-
-# Create your views here.
-from django.views.generic.edit import FormMixin
-
 from BankOfSoftUni.auth_app.models import Profile
-from BankOfSoftUni.customer_manager.forms import CreateCustomerForm, AccountOpenForm
+from BankOfSoftUni.customer_manager.forms import CreateCustomerForm, AccountOpenForm, EditCustomerForm
 from BankOfSoftUni.customer_manager.models import Customer
 
 
@@ -53,6 +49,12 @@ class CustomerRegisterView(views.CreateView):
 
     def get_success_url(self):
         return reverse('customer details', kwargs={'pk': self.pk})
+
+
+class CustomerEditView(views.CreateView):
+    form_class = EditCustomerForm
+    template_name = 'customer_dashboard/customer_edit.html'
+    success_url = reverse_lazy('customer details')
 
 
 class ProfileDetailsView(auth_mixin.LoginRequiredMixin, views.DetailView):

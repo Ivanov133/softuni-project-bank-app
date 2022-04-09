@@ -10,6 +10,7 @@ class Customer(models.Model):
     MAX_LAST_NAME_LEN = 40
 
     DOCUMENT_NUMBER_MAX_LEN = 25
+    IMAGE_UPLOAD_DIR = 'customer_images'
 
     first_name = models.CharField(
         max_length=MAX_FIRST_NAME_LEN,
@@ -76,7 +77,9 @@ class Customer(models.Model):
         auto_now_add=True,
     )
 
-    id_card = models.URLField()
+    id_card = models.ImageField(
+        upload_to=IMAGE_UPLOAD_DIR,
+    )
 
     @property
     def full_name(self):
