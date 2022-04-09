@@ -1,0 +1,13 @@
+{% extends 'main/base.html' %}
+
+{% block page_content %}
+    <div>
+        <a href="{% url 'customer search' %}">FIND CUST</a>
+    </div>
+    <div>
+        <a href="{% url 'customer register' %}">REGISTER CLIENT</a>
+    </div>
+    <div>
+        <a href="{% url 'customer details' 1 %}">VIEW CLIENT DETAILS</a>
+    </div>
+{% endblock %}

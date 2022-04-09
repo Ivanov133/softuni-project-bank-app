@@ -1,0 +1,28 @@
+{% extends 'main/base.html' %}
+{% block page_content %}
+    <div id="searchbar">
+        <form method="GET" action="{% url 'customer search' %}">
+            <label for="ucn">Search customer by UCN:</label>
+            <input type="number" name="ucn"/>
+            <button type="submit">Search</button>
+        </form>
+    </div>
+    <div id="searchbar2">
+        <form method="GET" action="{% url 'customer search' %}">
+            <label for="cus_number">Search customer by Customer Number:</label>
+            <input type="number" name="customer_number"/>
+            <button type="submit">Search</button>
+        </form>
+    </div>
+        <div id="searchbar3">
+        <form method="GET" action="{% url 'customer search' %}">
+            <label for="full_name">Search customer by Full Name:</label>
+            <input type="number" name="full_name"/>
+            <button type="submit">Search</button>
+        </form>
+    </div>
+    <div id="search_result">
+    {{ customer }}
+    </div>
+
+{% endblock %}

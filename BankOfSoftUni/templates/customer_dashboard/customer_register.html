@@ -1,0 +1,12 @@
+{% extends 'main/base.html' %}
+
+{% block page_content %}
+    <div>
+    <form method="POST" action="{% url 'customer register' %}" enctype="multipart/form-data">
+        {{ form }}
+        {% csrf_token %}
+        <button class="btn btn-primary mt-2" type="submit">REGISTER</button>
+    </form>
+
+    </div>
+{% endblock %}

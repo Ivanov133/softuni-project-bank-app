@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BANK OF SOFTUNI</title>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    {#        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"#}
+    {#              integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">#}
+    {#        <link rel="icon" type="image/png" href="https://pluspng.com/img-png/instagram-png-instagram-png-icon-1024.png">#}
+    {#        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"#}
+    {#              integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">#}
+
+</head>
+<body>
+
+<header>
+    <nav>
+        <img src="{% static 'images/4a5e788415902113d7150c36f1ec0916.jpg' %}">
+        <a href="{% url 'index' %}">Home Page</a>
+        {% if not request.user.is_authenticated %}
+            <ul>
+                <li class="guest">
+                    <a href="{% url 'login' %}">Login</a>
+                </li>
+            </ul>
+        {% else %}
+            <a href="{% url 'logout' %}">Logout</a>
+            <a href="{% url 'profile details' request.user.id %}">My Profile</a>
+            <a href="#">My Tasks</a>
+
+        {% endif %}
+        {% if request.user.is_staff %}
+            <div class="dropdown">
+                <span>ADMIN PANEL</span>
+                <div class="dropdown-content">
+                    <a href="{% url 'register' %}">Register Staff user</a>
+                    <a href="{% url 'logout' %}">Logout</a>
+                    <a href="{% url 'profile details' request.user.id %}">My Profile</a>
+                </div>
+            </div>
+        {% endif %}
+    </nav>
+</header>
+<div id="container">
+    {% block page_content %}
+    {% endblock %}
+</div>
+</body>
+</html>
