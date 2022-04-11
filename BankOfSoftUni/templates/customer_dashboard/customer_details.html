@@ -1,12 +1,42 @@
 {% extends 'main/base.html' %}
+{% load static %}
 
 {% block page_content %}
-    {{ customer }}
-    {{ user }}
-    {% for acc in accounts %}
-    {{ acc }}
+    <link rel="stylesheet" href="{% static 'css/profile_card.css' %}">
+    <script src="/staticfiles/helpers.js" type="text/javascript"></script>
 
-    {% endfor %}
+    <div class="customer_card">
+        <img src="{{ customer.id_card.url }}">
+        <p> Full name: {{ customer.full_name }}</p>
+        <p> UCN: {{ customer.ucn }}</p>
+        <p> Age: {{ customer.age }}</p>
+        <p> Assigned user: {{ customer.assigned_user.username }}</p>
+        <p> Annual Income: {{ customer.annual_income }}</p>
+        <button onclick={{ display_form }}>Tasks</button>
+
+    </div>
+    <table>
+        <tr>
+            <th>IBAN</th>
+            <th>Available balance</th>
+            <th>Currency</th>
+            <th>Opening date</th>
+            <th>Card Number</th>
+        </tr>
+        {% for acc in accounts %}
+
+            <tr>
+                <th>{{ acc.account_number }}</th>
+                <th>{{ acc.available_balance | floatformat:2 }}</th>
+                <th>{{ acc.currency }}</th>
+                <th>{{ acc.open_date }}</th>
+                <th>{{ acc.debit_card }}:{{ acc.debit_card_number }}</th>
+            </tr>
+
+
+        {% endfor %}
+    </table>
+
     <form method="POST" action="{% url 'customer details' customer.id %}" enctype="multipart/form-data">
         {{ form }}
         {% csrf_token %}

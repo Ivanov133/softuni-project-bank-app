@@ -1,4 +1,4 @@
-.card {
+.profile_card {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
     max-width: 300px;
     margin: auto;
@@ -8,31 +8,71 @@
 
 }
 
-/*button {*/
-/*    border: none;*/
-/*    outline: 0;*/
-/*    display: inline-block;*/
-/*    padding: 8px;*/
-/*    color: white;*/
-/*    background-color: #000;*/
-/*    text-align: center;*/
-/*    cursor: pointer;*/
-/*    width: 100%;*/
-/*    font-size: 18px;*/
-/*}*/
-
-/*a {*/
-/*    text-decoration: none;*/
-/*    font-size: 22px;*/
-/*    color: black;*/
-/*}*/
-
-
-.card img {
+.profile_card img {
     margin-left: auto;
     margin-right: auto;
     width: 200px;
     height: 150px;
     display: block;
     position: center;
+}
+
+
+.customer_card {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    max-width: 70%;
+    margin: auto;
+    text-align: left;
+    padding-top: 50px;
+    padding-bottom: 50px;
+
+}
+
+.customer_card img {
+    margin-left: auto;
+    margin-right: auto;
+    width: 200px;
+    height: 150px;
+    display: block;
+    position: center;
+}
+
+p {
+    color: darkorange;
+    font-size: medium;
+    font-weight: bold;
+    padding-left: 15px;
+}
+
+th, td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 5px solid black;
+}
+
+table {
+    margin-left: auto;
+    margin-right: auto;
+    border-left: solid;
+    border-right: solid;
+    border-top: solid;
+    max-width: 70%;
+    min-width: 70%;
+    border-collapse: collapse;
+
+
+}
+
+tr:hover {
+    background-color: darkorange;
+}
+
+tr {
+	border:none;
+}
+th, td {
+	border-collapse:collapse;
+	border: 2px solid black;
+	padding-top:0;
+	padding-bottom:0;
 }

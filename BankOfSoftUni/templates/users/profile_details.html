@@ -3,13 +3,12 @@
 
 {% block page_content %}
     <link rel="stylesheet" href="{% static 'css/profile_card.css' %}">
-    <div class="card">
+    <div class="profile_card">
         <img src="{{ profile.profile_pic.url }}">
         <h1>{{ profile.full_name }}</h1>
+        <p>{{ profile.employee_role }}</p>
         <p>User: {{ profile.user }}</p>
-        <p>: {{ profile.employee_role }}</p>
-        <p>User: {{ profile.user }}</p>
-            <button>Contact</button>
+            <button>Tasks</button>
 
     </div>
 {% endblock %}
