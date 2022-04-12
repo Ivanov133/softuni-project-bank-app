@@ -1,4 +1,4 @@
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 from BankOfSoftUni.auth_app.models import Profile, BankUser
@@ -87,7 +87,7 @@ class Customer(models.Model):
 
     @property
     def customer_number(self):
-        return f'SOFTU{100000 + self.id}'
+        return f'CUS{1000 + self.id}'
 
 
 class Account(models.Model):
@@ -137,3 +137,64 @@ class Account(models.Model):
     @property
     def debit_card_number(self):
         return f'{4550 + self.id} XXXX XXXX {1250 + self.id}'
+
+
+class BankLoan(models.Model):
+    # TO DO ADD FIXTURES
+    ALLOWED_CURRENCIES = (
+        'BGN',
+        'USD',
+        'CHF',
+        'GBP',
+        'JPY',
+    )
+
+    MAX_LOAN_PRINCIPAL = 500000
+
+    currency = models.CharField(
+        choices=[(x, x) for x in ALLOWED_CURRENCIES],
+        max_length=40,
+    )
+    # initial value of the loan
+    principal = models.FloatField(
+        validators=(
+            MaxValueValidator,
+        )
+    )
+
+    interest_rate = models.FloatField()
+
+    duration_in_months = models.IntegerField()
+
+    principal_remainder = models.FloatField()
+
+    monthly_payment_due_date = models.DateTimeField()
+
+    monthly_payment_value = models.FloatField()
+
+    is_paid_monthly = models.BooleanField(
+        default=False,
+    )
+
+    customer_debtor = models.ForeignKey(
+        Customer,
+        on_delete=models.DO_NOTHING,
+    )
+
+    assigned_user = models.ForeignKey(
+        BankUser,
+        on_delete=models.DO_NOTHING,
+    )
+
+    account_credit = models.ForeignKey(
+        Account,
+        on_delete=models.DO_NOTHING,
+    )
+
+    open_date = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    @property
+    def loan_number(self):
+        return f'LN{self.customer_debtor.customer_number}{self.currency}'
