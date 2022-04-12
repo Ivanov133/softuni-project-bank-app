@@ -35,6 +35,8 @@
     height: 150px;
     display: block;
     position: center;
+    max-width: 70%;
+    min-width: 70%;
 }
 
 p {
@@ -59,8 +61,6 @@ table {
     max-width: 70%;
     min-width: 70%;
     border-collapse: collapse;
-
-
 }
 
 tr:hover {
@@ -68,11 +68,12 @@ tr:hover {
 }
 
 tr {
-	border:none;
+    border: none;
 }
+
 th, td {
-	border-collapse:collapse;
-	border: 2px solid black;
-	padding-top:0;
-	padding-bottom:0;
+    border-collapse: collapse;
+    border: 2px solid black;
+    padding-top: 0;
+    padding-bottom: 0;
 }

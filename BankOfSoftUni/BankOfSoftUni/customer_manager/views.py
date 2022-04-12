@@ -31,14 +31,14 @@ class CustomerRegisterView(views.CreateView):
         return reverse('customer details', kwargs={'pk': self.pk})
 
 
-class CustomerEditView(views.CreateView):
-    form_class = EditCustomerForm
+class CustomerEditView(views.UpdateView):
+    model = Customer
     template_name = 'customer_dashboard/customer_edit.html'
+    fields = '__all__'
     success_url = reverse_lazy('customer details')
 
-
-
-
+    def get_success_url(self):
+        return reverse_lazy('customer details', kwargs={'pk': self.object.id})
 
 def search_customer_by_parameter(request):
     customer = None

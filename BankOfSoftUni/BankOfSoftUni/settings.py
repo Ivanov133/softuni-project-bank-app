@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'BankOfSoftUni.customer_manager',
     'BankOfSoftUni.auth_app',
+    'BankOfSoftUni.tasks_app',
 ]
 
 MIDDLEWARE = [
