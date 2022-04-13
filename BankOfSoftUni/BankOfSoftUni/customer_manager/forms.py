@@ -3,8 +3,13 @@ from datetime import date
 from django import forms
 from django.core.exceptions import ValidationError
 
-from BankOfSoftUni.customer_manager.models import IndividualCustomer, Account
+from BankOfSoftUni.customer_manager.models import IndividualCustomer, Account, BankLoan
 
+
+class CreateLoanForm(forms.ModelForm):
+    class Meta:
+        model = BankLoan
+        fields = '__all__'
 
 class CreateCustomerForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):

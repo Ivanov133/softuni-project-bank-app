@@ -2,8 +2,8 @@ from django.http import QueryDict
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import generic as views
-from BankOfSoftUni.customer_manager.forms import CreateCustomerForm, AccountOpenForm, EditCustomerForm
-from BankOfSoftUni.customer_manager.models import IndividualCustomer
+from BankOfSoftUni.customer_manager.forms import CreateCustomerForm, AccountOpenForm, CreateLoanForm
+from BankOfSoftUni.customer_manager.models import IndividualCustomer, Account
 from BankOfSoftUni.helpers.common import loan_approve
 
 
@@ -40,6 +40,7 @@ class CustomerEditView(views.UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('customer details', kwargs={'pk': self.object.id})
+
 
 def search_customer_by_parameter(request):
     customer = None
@@ -129,12 +130,21 @@ def customer_details(request, pk):
 
 
 def loan_create(request, pk):
-    context = None
+    customer = IndividualCustomer.objects.get(pk=pk)
+    context = {
+        'customer': customer,
+    }
     if request.method == 'GET':
-        customer = IndividualCustomer.objects.get(pk=pk)
-        # loan_approve(customer.anual_income, period, interest_rate, principal)
+        accounts = Account.objects.all().filter(customer_id=customer.id)
         principal = request.GET.get('principal')
-        context = {
-            'data': [principal],
-        }
+        period = request.GET.get('period')
+        if period and principal:
+            loan_calculator = loan_approve(customer.annual_income, float(principal), int(period))
+            context['loan_result'] = loan_calculator
+            context['accounts'] = accounts
+            context['principal'] = principal
+            context['period'] = period
+    if request.method == 'POST':
+        form = CreateLoanForm(request.POST)
+
     return render(request, 'customer_dashboard/loan_create.html', context)

@@ -173,7 +173,9 @@ class BankLoan(models.Model):
         )
     )
 
-    principal_remainder = models.FloatField()
+    principal_remainder = models.FloatField(
+        default=principal,
+    )
 
     next_monthly_payment_due_date = models.DateTimeField()
 

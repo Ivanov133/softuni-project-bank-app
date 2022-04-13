@@ -65,7 +65,8 @@ button {
 }
 
 select {
-    border-radius: 10px;
+    border-radius: 15px;
+    width: 100%;
 
 }
 
@@ -130,6 +131,10 @@ input {
 .dropdown:hover .dropdown-content {
     display: block;
 }
+option {
+    font-size: 20px;
+}
+
 
 #sidebar {
     height: 650px;
