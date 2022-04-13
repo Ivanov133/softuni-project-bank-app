@@ -5,21 +5,26 @@ from BankOfSoftUni.customer_manager.models import Customer
 
 
 class UserTask(models.Model):
-    # TASK_TYPES = (
-    #     'Register new client',
-    #     'Open new account',
-    #
-    # )
-    #
-    # assigned_user = models.ForeignKey(
-    #     BankUser,
-    #     on_delete=models.CASCADE,
-    # )
-    #
-    # assigned_customer = models.ForeignKey(
-    #     Customer,
-    #     on_delete=models.CASCADE,
-    # )
-    #
-    # task_type = models.CharField()
-    pass
+    TASK_TYPES = (
+        'Register new client',
+        'Open new account',
+
+    )
+
+    assigned_user = models.ForeignKey(
+        BankUser,
+        on_delete=models.CASCADE,
+    )
+
+    assigned_customer = models.ForeignKey(
+        Customer,
+        on_delete=models.CASCADE,
+    )
+
+    task_type = models.CharField(
+        max_length=30,
+    )
+
+    task_type1 = models.CharField(
+        max_length=30,
+    )

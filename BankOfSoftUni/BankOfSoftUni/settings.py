@@ -87,7 +87,7 @@ WSGI_APPLICATION = 'BankOfSoftUni.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'main_db',
+        'NAME': 'bank_db',
         'USER': 'postgres',
         'PASSWORD': '1123QwER',
         'HOST': '127.0.0.1',
