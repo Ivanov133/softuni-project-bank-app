@@ -20,19 +20,20 @@ footer {
 
 }
 
-nav a {
+a {
     text-decoration: none;
     border-radius: 50%;
-    padding: 0.5em;
     color: darkorange;
     font-size: 20px;
     font-weight: bold;
     position: relative;
     margin: 20px;
     justify-content: space-between;
+    float: left;
+    clear: left
 }
 
-nav a:hover {
+a:hover {
     cursor: pointer;
     color: red;
 }
@@ -46,6 +47,7 @@ span {
     font-size: 20px;
     font-weight: bold;
     font-family: "Bitstream Vera Sans Mono", Monaco, "Courier New", Courier, monospace;
+    margin: 30px;
 }
 
 button:hover {
@@ -92,10 +94,12 @@ form {
     font-size: medium;
     font-weight: bold;
 }
-
+select {
+    margin-bottom: 10px;
+}
 input {
     padding: 8px;
-    margin: 8px 0;
+    margin-bottom: 18px;
     box-shadow: 0 0 15px 4px rgba(0, 0, 0, 0.06);
     border-radius: 50px;
     width: 100%;
@@ -104,6 +108,7 @@ input {
     font-size: 15px;
     font-weight: bold;
     font-family: "Bitstream Vera Sans Mono", Monaco, "Courier New", Courier, monospace;
+    display: block;
 }
 
 /*admin dropdown panel*/
@@ -117,7 +122,7 @@ input {
     position: absolute;
     background-color: black;
     min-width: 180px;
-    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
     padding: 12px 16px;
     z-index: 1;
 }
@@ -126,42 +131,21 @@ input {
     display: block;
 }
 
-/*BOOTSTRAP*/
-@media (min-width: 991.98px) {
-    main {
-        padding-left: 240px;
-    }
-}
-
-/* Sidebar */
-.sidebar {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    padding: 58px 0 0; /* Height of navbar */
-    box-shadow: 0 2px 5px 0 rgb(0 0 0 / 5%), 0 2px 10px 0 rgb(0 0 0 / 5%);
-    width: 240px;
-    z-index: 600;
-}
-
-@media (max-width: 991.98px) {
-    .sidebar {
-        width: 100%;
-    }
-}
-
-.sidebar .active {
-    border-radius: 5px;
-    box-shadow: 0 2px 5px 0 rgb(0 0 0 / 16%), 0 2px 10px 0 rgb(0 0 0 / 12%);
-}
-
-.sidebar-sticky {
+#sidebar {
+    height: 650px;
+    width: 250px;
     position: relative;
+    left: 0;
     top: 0;
-    height: calc(100vh - 48px);
-    padding-top: 0.5rem;
-    overflow-x: hidden;
-    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+    padding-top: 20px;
+    background-image: url("https://i.ibb.co/BNZ7dgf/imageedit-2-7977708091.jpg");
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
 }
 
+label {
+    display: block;
+    margin-bottom: 10px;
+}

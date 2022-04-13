@@ -1,13 +1,22 @@
 {% extends 'main/base.html' %}
 
 {% block page_content %}
-    <div>
-        <a href="{% url 'customer search' %}">FIND CUST</a>
-    </div>
-    <div>
-        <a href="{% url 'customer register' %}">REGISTER CLIENT</a>
-    </div>
-    <div>
-        <a href="{% url 'customer edit' 1 %}">VIEW CLIENT DETAILS</a>
-    </div>
+    <table id="sidebar">
+        <tr>
+            <td>
+                <a href="{% url 'customer search' %}">FIND CUST</a>
+            </td>
+        <tr>
+
+            <td>
+                <a href="{% url 'customer register' %}">REGISTER CLIENT</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a href="{% url 'customer details' 1 %}">VIEW CLIENT DETAILS</a>>
+            </td>
+        </tr>
+
+    </table>
 {% endblock %}

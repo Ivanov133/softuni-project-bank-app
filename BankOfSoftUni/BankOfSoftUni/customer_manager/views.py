@@ -3,11 +3,12 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import generic as views
 from BankOfSoftUni.customer_manager.forms import CreateCustomerForm, AccountOpenForm, EditCustomerForm
-from BankOfSoftUni.customer_manager.models import Customer
+from BankOfSoftUni.customer_manager.models import IndividualCustomer
+from BankOfSoftUni.helpers.common import loan_approve
 
 
 class CustomerPanelView(views.DetailView):
-    model = Customer
+    model = IndividualCustomer
     template_name = 'customer_dashboard/customer_details.html'
 
 
@@ -32,7 +33,7 @@ class CustomerRegisterView(views.CreateView):
 
 
 class CustomerEditView(views.UpdateView):
-    model = Customer
+    model = IndividualCustomer
     template_name = 'customer_dashboard/customer_edit.html'
     fields = '__all__'
     success_url = reverse_lazy('customer details')
@@ -52,13 +53,13 @@ def search_customer_by_parameter(request):
             search_by = form_input_field
             if form_input_field == 'ucn':
                 try:
-                    customer = Customer.objects.get(ucn=searched_value)
+                    customer = IndividualCustomer.objects.get(ucn=searched_value)
                 except:
                     pass
             elif form_input_field == 'customer_number':
-                customer = [cus for cus in Customer.objects.all() if cus.customer_number == searched_value]
+                customer = [cus for cus in IndividualCustomer.objects.all() if cus.customer_number == searched_value]
             elif form_input_field == 'full_name':
-                customer = [cus for cus in Customer.objects.all() if cus.full_name == searched_value]
+                customer = [cus for cus in IndividualCustomer.objects.all() if cus.full_name == searched_value]
 
         if customer:
             context = {
@@ -101,7 +102,7 @@ def search_customer_by_parameter(request):
 #
 
 def customer_details(request, pk):
-    customer = Customer.objects.get(pk=pk)
+    customer = IndividualCustomer.objects.get(pk=pk)
     accounts = customer.customer_accounts.all()
 
     # get customer and user and assign to account
@@ -125,3 +126,15 @@ def customer_details(request, pk):
     }
 
     return render(request, 'customer_dashboard/customer_details.html', context)
+
+
+def loan_create(request, pk):
+    context = None
+    if request.method == 'GET':
+        customer = IndividualCustomer.objects.get(pk=pk)
+        # loan_approve(customer.anual_income, period, interest_rate, principal)
+        principal = request.GET.get('principal')
+        context = {
+            'data': [principal],
+        }
+    return render(request, 'customer_dashboard/loan_create.html', context)

@@ -1,7 +1,9 @@
+from datetime import date
+
 from django import forms
 from django.core.exceptions import ValidationError
 
-from BankOfSoftUni.customer_manager.models import Customer, Account
+from BankOfSoftUni.customer_manager.models import IndividualCustomer, Account
 
 
 class CreateCustomerForm(forms.ModelForm):
@@ -19,7 +21,9 @@ class CreateCustomerForm(forms.ModelForm):
         return customer
 
     class Meta:
-        model = Customer
+        model = IndividualCustomer
+        this_year = date.today().year
+        year_range = [x for x in range(this_year - 100, this_year + 1)]
         fields = (
             'first_name',
             'sir_name',
@@ -70,11 +74,7 @@ class CreateCustomerForm(forms.ModelForm):
                 attrs={
                 }
             ),
-            'date_of_birth': forms.SelectDateWidget(
-                attrs={
-                    'placeholder': 'Enter birth date',
-                }
-            ),
+            'date_of_birth': forms.SelectDateWidget(years=year_range),
 
         }
 
@@ -88,12 +88,9 @@ class AccountOpenForm(forms.ModelForm):
         )
 
 
-
-
-
 class EditCustomerForm(forms.ModelForm):
     class Meta:
-        model = Customer
+        model = IndividualCustomer
         fields = (
             'first_name',
             'sir_name',
@@ -106,49 +103,5 @@ class EditCustomerForm(forms.ModelForm):
             'id_card',
             'date_of_birth',
             'gender',
-
         )
-
-        widgets = {
-            'first_name': forms.TextInput(
-                attrs={
-                    'placeholder': 'Enter first name',
-                }
-            ),
-            'sir_name': forms.TextInput(
-                attrs={
-                    'placeholder': 'Enter sir name',
-                }
-            ),
-            'last_name': forms.TextInput(
-                attrs={
-                    'placeholder': 'Enter last name',
-                }
-            ),
-            'ucn': forms.NumberInput(
-                attrs={
-                    'placeholder': 'Enter Unique Citizenship Number',
-                }
-            ),
-            'document_number': forms.TextInput(
-                attrs={
-                    'placeholder': 'Enter ID/Passport number',
-                }
-            ),
-            'age': forms.NumberInput(
-                attrs={
-                    'placeholder': 'Client age',
-                }
-            ),
-            'annual_income': forms.NumberInput(
-                attrs={
-                }
-            ),
-            'date_of_birth': forms.SelectDateWidget(
-                attrs={
-                    'placeholder': 'Enter birth date',
-                }
-            ),
-
-        }
 

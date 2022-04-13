@@ -1,0 +1,13 @@
+{% extends 'main/base.html' %}
+
+{% block page_content %}
+
+    <form method="GET" action="{% url 'loan create' 1 %}">
+        <label for="period">Period in months:</label>
+        <input type="number" id="period" name="period" required/>
+        <label for="principal">Principal:</label>
+        <input type="number" id="principal" name="principal" required/>
+        <button type="submit">Calculate loan parameters</button>
+    </form>
+    {{ data }}
+{% endblock %}

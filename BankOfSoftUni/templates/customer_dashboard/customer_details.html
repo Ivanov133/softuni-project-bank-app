@@ -3,7 +3,6 @@
 
 {% block page_content %}
     <link rel="stylesheet" href="{% static 'css/profile_card.css' %}">
-    <script src="{% static "js/helpers.js" %}" type="module"></script>
 
     <div class="customer_card">
         <img src="{{ customer.id_card.url }}">
@@ -14,7 +13,10 @@
         <p> Annual Income: {{ customer.annual_income }}</p>
         <button>Tasks</button>
         <button id="open-account-btn">Open account</button>
-
+        <button id="show-accounts-btn">Show customer accounts</button>
+        <button id="open-loans-btn">Show customer loans</button>
+        <button id="open-loan-btn">Create loan</button>
+        <a href="{% url 'loan create' customer.id %}">Start loan procedure</a>
     </div>
     <div id="account-open" style="display: none">
         <form method="POST" action="{% url 'customer details' customer.id %}" enctype="multipart/form-data">
@@ -23,11 +25,12 @@
             <button type="submit">Open Account</button>
         </form>
     </div>
-    <table>
+    <table id="accounts-list-table" style="display: none">
         <tr>
             <th>IBAN</th>
+            <th>Open Currency</th>
             <th>Available balance</th>
-            <th>Currency</th>
+            <th>Balance in BGN</th>
             <th>Opening date</th>
             <th>Card Number</th>
         </tr>
@@ -35,8 +38,9 @@
 
             <tr>
                 <th>{{ acc.account_number }}</th>
-                <th>{{ acc.available_balance | floatformat:2 }}</th>
                 <th>{{ acc.currency }}</th>
+                <th>{{ acc.available_balance | floatformat:2 }}</th>
+                <th>{{ acc.local_currency | floatformat:2 }}</th>
                 <th>{{ acc.open_date }}</th>
                 <th>{{ acc.debit_card }}:{{ acc.debit_card_number }}</th>
             </tr>

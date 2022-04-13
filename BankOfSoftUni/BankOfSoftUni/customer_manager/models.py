@@ -2,9 +2,10 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 from BankOfSoftUni.auth_app.models import Profile, BankUser
+from BankOfSoftUni.helpers.common import calc_foreign_currency_to_BGN
 
 
-class Customer(models.Model):
+class IndividualCustomer(models.Model):
     MAX_FIRST_NAME_LEN = 40
     MAX_SIR_NAME_LEN = 40
     MAX_LAST_NAME_LEN = 40
@@ -97,6 +98,7 @@ class Account(models.Model):
         'CHF',
         'GBP',
         'JPY',
+        'EUR',
     )
 
     BANK_CARD_MANUFACTURER = (
@@ -115,7 +117,7 @@ class Account(models.Model):
         default=0,
     )
     customer = models.ForeignKey(
-        Customer,
+        IndividualCustomer,
         on_delete=models.DO_NOTHING,
         related_name='customer_accounts',
     )
@@ -138,18 +140,19 @@ class Account(models.Model):
     def debit_card_number(self):
         return f'{4550 + self.id} XXXX XXXX {1250 + self.id}'
 
+    @property
+    def local_currency(self):
+        return calc_foreign_currency_to_BGN(self.available_balance, self.currency)
+
 
 class BankLoan(models.Model):
     # TO DO ADD FIXTURES
     ALLOWED_CURRENCIES = (
         'BGN',
-        'USD',
-        'CHF',
-        'GBP',
-        'JPY',
     )
 
     MAX_LOAN_PRINCIPAL = 500000
+    MAX_LOAN_DURATION_IN_YEARS = 30
 
     currency = models.CharField(
         choices=[(x, x) for x in ALLOWED_CURRENCIES],
@@ -164,11 +167,15 @@ class BankLoan(models.Model):
 
     interest_rate = models.FloatField()
 
-    duration_in_months = models.IntegerField()
+    duration_in_years = models.IntegerField(
+        validators=(
+            MaxValueValidator(MAX_LOAN_DURATION_IN_YEARS),
+        )
+    )
 
     principal_remainder = models.FloatField()
 
-    monthly_payment_due_date = models.DateTimeField()
+    next_monthly_payment_due_date = models.DateTimeField()
 
     monthly_payment_value = models.FloatField()
 
@@ -177,7 +184,7 @@ class BankLoan(models.Model):
     )
 
     customer_debtor = models.ForeignKey(
-        Customer,
+        IndividualCustomer,
         on_delete=models.DO_NOTHING,
     )
 

@@ -2,11 +2,28 @@
 
 {% block page_content %}
     <div>
-    <form method="POST" action="{% url 'customer edit' 1 %}" enctype="multipart/form-data">
-        {{ form }}
-        {% csrf_token %}
-        <button type="submit">Commit changes</button>
-    </form>
+        <form method="POST" action="{% url 'customer edit' 1 %}" enctype="multipart/form-data">
+            {% for field in form %}
+                {% if field.name != "id_card" %}
+                    <div>
+                    {{ field.errors }}
+                    {{ field.label_tag }} {{ field }}
+                    {% if field.help_text %}
+                        <p class="help">{{ field.help_text|safe }}</p>
+                    {% endif %}
+                {% else %}
+                    <div>
+                    {{ field.errors }}
+                    {{ field.label_tag }} {{ field }}
+                    {% if field.help_text %}
+                        <p class="help">{{ field.help_text|safe }}</p>
+                    {% endif %}
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% csrf_token %}
+            <button type="submit">Commit changes</button>
+        </form>
 
     </div>
 {% endblock %}

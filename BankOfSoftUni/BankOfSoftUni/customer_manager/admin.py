@@ -1,10 +1,10 @@
 from django.contrib import admin
 
 # Register your models here.
-from BankOfSoftUni.customer_manager.models import Customer, Account
+from BankOfSoftUni.customer_manager.models import IndividualCustomer, Account
 
 
-@admin.register(Customer)
+@admin.register(IndividualCustomer)
 class CustomerAdmin(admin.ModelAdmin):
     list_display = ('customer_number', 'full_name', 'ucn', 'registration_date',)
 

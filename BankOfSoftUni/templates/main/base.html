@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <title>BANK OF SOFTUNI</title>
     <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <script src="{% static "js/helpers.js" %}" type="module"></script>
+
     {#        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"#}
     {#              integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">#}
     {#        <link rel="icon" type="image/png" href="https://pluspng.com/img-png/instagram-png-instagram-png-icon-1024.png">#}
@@ -15,7 +17,7 @@
 <body>
 
 <header>
-    <nav>
+    <nav id="nav-panel">
         <img src="https://i.ibb.co/99cfrL6/Capture.png" alt="Capture">
         <a class="align-left" href="{% url 'index' %}">Home
         Page</a>
@@ -28,7 +30,7 @@
         {% endif %}
         {% if request.user.is_staff %}
             <div class="dropdown">
-                <span>ADMIN PANEL</span>
+                <span>User Panel</span>
                 <div class="dropdown-content">
                     <a class="align-left" href="{% url 'register' %}">Register Staff user</a>
                     <a class="align-left" href="{% url 'logout' %}">Logout</a>

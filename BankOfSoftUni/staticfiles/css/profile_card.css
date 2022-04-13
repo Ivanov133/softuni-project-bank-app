@@ -11,7 +11,7 @@
 .profile_card img {
     margin-left: auto;
     margin-right: auto;
-    width: 200px;
+    width: 150px;
     height: 150px;
     display: block;
     position: center;
@@ -20,23 +20,23 @@
 
 .customer_card {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-    max-width: 70%;
+    max-width: 55%;
     margin: auto;
     text-align: left;
-    padding-top: 50px;
-    padding-bottom: 50px;
+    padding-top: 20px;
+    padding-bottom: 20px;
 
 }
+.customer_card button {
 
+}
 .customer_card img {
     margin-left: auto;
     margin-right: auto;
-    width: 200px;
-    height: 150px;
     display: block;
     position: center;
-    max-width: 70%;
-    min-width: 70%;
+    max-width: 60%;
+    min-width: 60%;
 }
 
 p {
