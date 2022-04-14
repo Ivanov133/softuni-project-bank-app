@@ -4,6 +4,7 @@ from BankOfSoftUni.helpers.validators import validate_only_letters
 
 from BankOfSoftUni.auth_app.models import Profile
 
+
 class CreateProfileForm(auth_forms.UserCreationForm):
     first_name = forms.CharField(
         max_length=Profile.FIRST_NAME_MAX_LENGTH,

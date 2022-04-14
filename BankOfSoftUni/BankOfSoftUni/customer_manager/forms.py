@@ -1,15 +1,48 @@
-from datetime import date
-
+import datetime
 from django import forms
-from django.core.exceptions import ValidationError
 
 from BankOfSoftUni.customer_manager.models import IndividualCustomer, Account, BankLoan
+from BankOfSoftUni.helpers.common import get_next_month_date
 
 
 class CreateLoanForm(forms.ModelForm):
+    def __init__(self, accounts, customer, user, interest_rate, monthly_payment,
+                 principal, period, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.accounts = accounts
+        self.customer = customer
+        self.user = user
+        self.interest_rate = interest_rate
+        self.monthly_payment = monthly_payment
+        self.next_monthly_payment_due_date = get_next_month_date()
+        self.principal = principal
+        self.period = period
+        self.initial['principal'] = principal
+        self.initial['interest_rate'] = interest_rate
+        self.initial['duration_in_years'] = period
+        self.initial['next_monthly_payment_due_date'] = self.next_monthly_payment_due_date
+        self.initial['monthly_payment_value'] = monthly_payment
+        self.initial['customer_debtor'] = customer
+        self.initial['assigned_user'] = user
+
+        # disable all fields and handle account choices
+        for name, field in self.fields.items():
+            if not name == 'account_credit':
+                field.widget.attrs['disabled'] = 'disabled'
+            else:
+                field.choices = ((x, x) for x in [acc.account_number for acc in accounts])
+
     class Meta:
         model = BankLoan
-        fields = '__all__'
+        fields = (
+            'principal',
+            'interest_rate',
+            'duration_in_years',
+            'next_monthly_payment_due_date',
+            'monthly_payment_value',
+            'account_credit',
+        )
+
 
 class CreateCustomerForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
@@ -27,7 +60,7 @@ class CreateCustomerForm(forms.ModelForm):
 
     class Meta:
         model = IndividualCustomer
-        this_year = date.today().year
+        this_year = datetime.date.today().year
         year_range = [x for x in range(this_year - 100, this_year + 1)]
         fields = (
             'first_name',
@@ -109,4 +142,3 @@ class EditCustomerForm(forms.ModelForm):
             'date_of_birth',
             'gender',
         )
-

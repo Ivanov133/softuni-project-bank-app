@@ -3,8 +3,8 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import generic as views
 from BankOfSoftUni.customer_manager.forms import CreateCustomerForm, AccountOpenForm, CreateLoanForm
-from BankOfSoftUni.customer_manager.models import IndividualCustomer, Account
-from BankOfSoftUni.helpers.common import loan_approve
+from BankOfSoftUni.customer_manager.models import IndividualCustomer, Account, BankLoan
+from BankOfSoftUni.helpers.common import loan_approve, get_next_month_date
 
 
 class CustomerPanelView(views.DetailView):
@@ -80,28 +80,6 @@ def search_customer_by_parameter(request):
         return render(request, 'customer_dashboard/customer_search.html', context)
 
 
-# class AccountOpenView(views.CreateView):
-#     form_class = AccountOpenForm
-#     template_name = 'customer_dashboard/account_create.html'
-#     success_url = reverse_lazy('customer details')
-#
-#     def get_form_kwargs(self):
-#         kwargs = super().get_form_kwargs()
-#         kwargs['user'] = self.request.user
-#         # kwargs['customer'] = Customer.objects.get(pk=self.kwargs['pk'])
-#         # print(kwargs['customer'])
-#         return kwargs
-#
-#     # redirect to details page by getting pk from url
-#     def form_valid(self, form):
-#         account = form.save()
-#         self.pk = account.pk
-#         return super().form_valid(form)
-#
-#     def get_success_url(self):
-#         return reverse('customer details', kwargs={'pk': self.pk})
-#
-
 def customer_details(request, pk):
     customer = IndividualCustomer.objects.get(pk=pk)
     accounts = customer.customer_accounts.all()
@@ -131,11 +109,16 @@ def customer_details(request, pk):
 
 def loan_create(request, pk):
     customer = IndividualCustomer.objects.get(pk=pk)
+    # All accounts are used for the form choice field
+    accounts = Account.objects.all().filter(customer_id=customer.id)
     context = {
         'customer': customer,
+        'accounts': accounts,
     }
+    # GET loan principal and duration
+    # Pass them on to calculation functions
+    # Populate the next form with the returned values
     if request.method == 'GET':
-        accounts = Account.objects.all().filter(customer_id=customer.id)
         principal = request.GET.get('principal')
         period = request.GET.get('period')
         if period and principal:
@@ -144,7 +127,44 @@ def loan_create(request, pk):
             context['accounts'] = accounts
             context['principal'] = principal
             context['period'] = period
-    if request.method == 'POST':
-        form = CreateLoanForm(request.POST)
+            form = CreateLoanForm(
+                accounts,
+                customer,
+                request.user,
+                loan_calculator['interest_rate'],
+                loan_calculator['monthly_payment'],
+                principal,
+                period,
+            )
+            context['form'] = form
 
+            # store data in session
+            request.session['monthly_payment'] = loan_calculator['monthly_payment']
+            request.session['principal'] = principal
+            request.session['period'] = period
+            request.session['interest_rate'] = loan_calculator['interest_rate']
+            request.session.modified = True
+
+    # If loan is confirmed, create loan object with the saved data from the session
+    if request.method == 'POST':
+        # account = Account.objects.all().filter(pk=request.POST.get('account_credit'))[:1].get()
+        account_query = [acc for acc in customer.customer_accounts.all() if
+                   acc.account_number == request.POST.get('account_credit')]
+        account = list(account_query[:1])[0]
+        loan = BankLoan(
+            currency="BGN",
+            principal=request.session.get('principal'),
+            interest_rate=request.session.get('interest_rate'),
+            duration_in_years=request.session.get('period'),
+            next_monthly_payment_due_date=get_next_month_date(),
+            monthly_payment_value=request.session.get('monthly_payment'),
+            customer_debtor=context['customer'],
+            assigned_user=request.user,
+            principal_remainder=request.session.get('principal'),
+            account_credit=r,
+        )
+        loan.save()
+        account.available_balance = loan.principal
+        account.save()
+        return render(request, 'customer_dashboard/customer_details.html', customer.pk)
     return render(request, 'customer_dashboard/loan_create.html', context)

@@ -2,7 +2,7 @@
 
 {% block page_content %}
     <div>
-        <form method="POST" action="{% url 'customer edit' 1 %}" enctype="multipart/form-data">
+        <form method="POST" action="{% url 'customer edit' object.pk %}" enctype="multipart/form-data">
             {% for field in form %}
                 {% if field.name != "id_card" %}
                     <div>

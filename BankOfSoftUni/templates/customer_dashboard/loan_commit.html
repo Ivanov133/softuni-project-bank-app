@@ -1,0 +1,10 @@
+{% extends 'main/base.html' %}
+
+{% block page_content %}
+
+    <form method="POST" action="{% url 'customer details' customer.id %}">
+        {% csrf_token %}
+        {{ form }}
+        <button type="submit">Submit Loan Application</button>
+    </form>
+{% endblock %}

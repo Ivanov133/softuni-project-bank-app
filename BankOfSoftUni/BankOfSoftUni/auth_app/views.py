@@ -9,6 +9,16 @@ from BankOfSoftUni.auth_app.forms import CreateProfileForm
 from BankOfSoftUni.auth_app.models import Profile
 
 
+class ProfileEditView(views.UpdateView):
+    model = Profile
+    template_name = 'users/profile_edit.html'
+    fields = '__all__'
+    success_url = reverse_lazy('profile details')
+
+    def get_success_url(self):
+        return reverse_lazy('profile details', kwargs={'pk': self.object.pk})
+
+
 class UserRegisterView(views.CreateView):
     form_class = CreateProfileForm
     template_name = 'users/create_user.html'
@@ -47,3 +57,4 @@ def logout_view(request):
 class ProfileDetailsView(auth_mixin.LoginRequiredMixin, views.DetailView):
     model = Profile
     template_name = 'users/profile_details.html'
+
