@@ -23,6 +23,10 @@ class UserTask(models.Model):
         on_delete=models.CASCADE,
     )
 
+    assigned_customer = models.ForeignKey(
+        IndividualCustomer,
+        on_delete=models.CASCADE,
+    )
     type = models.CharField(
         max_length=30,
         choices=[(x, x) for x in TASK_TYPES]

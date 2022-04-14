@@ -13,7 +13,7 @@ class ProfileEditView(views.UpdateView):
     model = Profile
     template_name = 'users/profile_edit.html'
     fields = '__all__'
-    success_url = reverse_lazy('profile details')
+    success_url = reverse_lazy('upload target')
 
     def get_success_url(self):
         return reverse_lazy('profile details', kwargs={'pk': self.object.pk})
