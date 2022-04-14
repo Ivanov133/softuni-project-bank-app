@@ -5,18 +5,29 @@
     <link rel="stylesheet" href="{% static 'css/profile_card.css' %}">
 
     <div class="customer_card">
+        <a class="profile-anchor" href="{% url 'loan create' customer.id %}">Start loan procedure</a>
+
         <img src="{{ customer.id_card.url }}">
-        <p> Full name: {{ customer.full_name }}</p>
-        <p> UCN: {{ customer.ucn }}</p>
-        <p> Age: {{ customer.age }}</p>
-        <p> Assigned user: {{ customer.assigned_user.username }}</p>
-        <p> Annual Income: {{ customer.annual_income }}</p>
-        <button>Tasks</button>
+        <button id="show-customer-details">Show customer details</button>
+
+        <div id="customer-details" style="display:none;">
+
+            <p> Full name: {{ customer.full_name }}</p>
+            <p> UCN: {{ customer.ucn }}</p>
+            <p> Age: {{ customer.age }}</p>
+            <p> ID: {{ customer.document_number }}</p>
+            <p> Gender: {{ customer.gender }}</p>
+            <p> Annual Income: {{ customer.annual_income }}</p>
+            <p> Occupation: {{ customer.occupation }}</p>
+            <p> Annual Income: {{ customer.occupation }}</p>
+            <p> Assigned user: {{ customer.assigned_user.username }}</p>
+
+        </div>
+
         <button id="open-account-btn">Open account</button>
         <button id="show-accounts-btn">Show customer accounts</button>
-        <button id="open-loans-btn">Show customer loans</button>
-        <button id="open-loan-btn">Create loan</button>
-        <a href="{% url 'loan create' customer.id %}">Start loan procedure</a>
+        <button id="show-loans-btn">Show loans</button>
+
     </div>
     <div id="account-open" style="display: none">
         <form method="POST" action="{% url 'customer details' customer.id %}" enctype="multipart/form-data">
@@ -25,8 +36,39 @@
             <button type="submit">Open Account</button>
         </form>
     </div>
-    <table id="accounts-list-table" style="display: none">
-        <tr>
+    {% if loans %}
+        <table id="loan-list-table" style="display: block">
+            <tr class="main-tr">
+                <th>Loan number</th>
+                <th>Currency</th>
+                <th>Monthly payment</th>
+                <th>Next payment due date</th>
+                <th>Current month paid</th>
+                <th>Serving account</th>
+                <th>Remaining principal</th>
+                <th>Open date</th>
+                <th>End date</th>
+            </tr>
+            {% for loan in loans %}
+                <tr>
+                    <th>{{ loan.loan_number }}</th>
+                    <th>{{ loan.currency }}</th>
+                    <th>{{ loan.monthly_payment_value | floatformat:2 }}</th>
+                    <th>{{ loan.next_monthly_payment_due_date }}</th>
+                    <th>{{ loan.is_paid_monthly }}</th>
+                    <th>{{ loan.account_credit.account_number }}</th>
+                    <th>{{ loan.principal_remainder | floatformat:2 }}</th>
+                    <th>{{ loan.open_date }}</th>
+                    <th>{{ loan.end_date }}</th>
+
+                </tr>
+
+
+            {% endfor %}
+        </table>
+    {% endif %}
+    <table id="accounts-list-table" style="display: block">
+        <tr class="main-tr">
             <th>IBAN</th>
             <th>Open Currency</th>
             <th>Available balance</th>
@@ -42,7 +84,7 @@
                 <th>{{ acc.available_balance | floatformat:2 }}</th>
                 <th>{{ acc.local_currency | floatformat:2 }}</th>
                 <th>{{ acc.open_date }}</th>
-                <th>{{ acc.debit_card }}:{{ acc.debit_card_number }}</th>
+                <th>{{ acc.debit_card_number }}</th>
             </tr>
 
 

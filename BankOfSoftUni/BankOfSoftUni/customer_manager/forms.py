@@ -29,8 +29,8 @@ class CreateLoanForm(forms.ModelForm):
         for name, field in self.fields.items():
             if not name == 'account_credit':
                 field.widget.attrs['disabled'] = 'disabled'
-            else:
-                field.choices = ((x, x) for x in [acc.account_number for acc in accounts])
+            # else:
+            #     field.choices = ((x, x) for x in [acc.account_number for acc in accounts])
 
     class Meta:
         model = BankLoan

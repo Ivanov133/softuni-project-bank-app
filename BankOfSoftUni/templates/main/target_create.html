@@ -1,0 +1,9 @@
+{% extends 'main/base.html' %}
+
+{% block page_content %}
+    <form method="POST" action="{% url 'upload target'%}">
+        {{ form }}
+        {% csrf_token %}
+        <button type="submit">Submit Targets</button>
+    </form>
+{% endblock %}

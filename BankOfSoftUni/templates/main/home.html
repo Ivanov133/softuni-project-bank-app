@@ -4,19 +4,28 @@
     <table id="sidebar">
         <tr>
             <td>
-                <a href="{% url 'customer search' %}">FIND CUST</a>
+                <a class="sidebar-anchor" href="{% url 'customer search' %}">Customer search</a>
             </td>
         <tr>
 
             <td>
-                <a href="{% url 'customer register' %}">REGISTER CLIENT</a>
+                <a class="sidebar-anchor" href="{% url 'customer register' %}">Customer registration</a>
             </td>
         </tr>
         <tr>
             <td>
-                <a href="{% url 'customer details' 1 %}">VIEW CLIENT DETAILS</a>>
+                <a class="sidebar-anchor" href="{% url 'upload target' %}">Upload annual target</a>
             </td>
         </tr>
-
+        <tr>
+            <td>
+                <a class="sidebar-anchor" href="{% url 'upload target' %}">My customer portfolio</a>
+            </td>
+        </tr>
+            <tr>
+            <td>
+                <a class="sidebar-anchor" href="{% url 'customer details' 1 %}">My tasks ->>> DETAILS CUS</a>
+            </td>
+        </tr>
     </table>
 {% endblock %}

@@ -9,6 +9,6 @@
         <p>{{ profile.employee_role }}</p>
         <p>User: {{ profile.user }}</p>
             <button>Tasks</button>
-    <a href="{% url 'profile edit' object.pk %}"> Edit Profile</a>
+    <a class="profile-anchor" href="{% url 'profile edit' object.pk %}"> Edit Profile</a>
     </div>
 {% endblock %}

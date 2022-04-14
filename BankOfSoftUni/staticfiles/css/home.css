@@ -9,20 +9,20 @@ body {
 
 nav,
 footer {
-    background-image: url("https://i.ibb.co/jMLRrP6/photo-1636953056323-9c09fdd74fa6.jpg");
+    background-image: url("https://i.ibb.co/BNZ7dgf/imageedit-2-7977708091.jpg");
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 0 5px 0 3px;
-    margin-bottom: 25px;
+    /*padding: 0 5px 0 3px;*/
+    /*margin-bottom: 25px;*/
     color: darkorange;
 
 }
 
-a {
+nav a {
     text-decoration: none;
-    border-radius: 50%;
+    /*border-radius: 50%;*/
     color: darkorange;
     font-size: 20px;
     font-weight: bold;
@@ -33,10 +33,54 @@ a {
     clear: left
 }
 
-a:hover {
+nav a:hover {
     cursor: pointer;
     color: red;
 }
+
+.sidebar-anchor {
+    text-decoration: none;
+    /*border-radius: 50%;*/
+    color: darkorange;
+    font-size: 20px;
+    font-weight: bold;
+    position: relative;
+    margin: 20px;
+    justify-content: space-between;
+    float: left;
+    clear: left
+}
+
+.sidebar-anchor:hover {
+    cursor: pointer;
+    color: red;
+}
+
+.profile-anchor {
+    text-decoration: none;
+    /*border-radius: 50%;*/
+    color: darkorange;
+    font-size: 20px;
+    font-weight: bold;
+    position: relative;
+    margin: 50px;
+    justify-content: space-between;
+    float: left;
+    clear: left
+}
+
+.profile-anchor:hover {
+    cursor: pointer;
+    color: green;
+}
+
+p {
+    color: darkorange;
+    font-size: medium;
+    font-weight: bold;
+    padding-left: 15px;
+}
+
 
 nav div:hover {
     cursor: pointer;
@@ -56,13 +100,31 @@ button:hover {
 }
 
 button {
-    padding: 15px;
+    padding: 17px;
     border: none;
     background-color: darkorange;
     color: white;
     font-weight: bold;
-    border-radius: 10px;
+    border-radius: 12px;
+    margin: 10px;
 }
+
+.btn-anchor {
+    background-color: white;
+    color: black;
+    border: 2px solid green;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+}
+
+
+.btn-anchor:hover {
+    background-color: green;
+    color: white;
+}
+
 
 select {
     border-radius: 15px;
@@ -95,9 +157,11 @@ form {
     font-size: medium;
     font-weight: bold;
 }
+
 select {
     margin-bottom: 10px;
 }
+
 input {
     padding: 8px;
     margin-bottom: 18px;
@@ -131,6 +195,7 @@ input {
 .dropdown:hover .dropdown-content {
     display: block;
 }
+
 option {
     font-size: 20px;
 }
@@ -141,13 +206,15 @@ option {
     width: 250px;
     position: relative;
     left: 0;
-    top: 0;
-    padding-top: 20px;
+    /*padding-top: 20px;*/
     background-image: url("https://i.ibb.co/BNZ7dgf/imageedit-2-7977708091.jpg");
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
+    top: 0;
+    bottom: 100px;
+
 }
 
 label {

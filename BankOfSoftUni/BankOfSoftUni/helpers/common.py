@@ -14,6 +14,11 @@ def get_next_month_date():
     return next_month_date
 
 
+def get_loan_end_date(start_date, years):
+    end_date = start_date + relativedelta(months=years * 12)
+    return end_date
+
+
 def calc_foreign_currency_to_BGN(value, currency):
     return value * ALLOWED_CURRENCIES[currency]
 

@@ -5,6 +5,7 @@ from django.views import generic as views
 from BankOfSoftUni.customer_manager.forms import CreateCustomerForm, AccountOpenForm, CreateLoanForm
 from BankOfSoftUni.customer_manager.models import IndividualCustomer, Account, BankLoan
 from BankOfSoftUni.helpers.common import loan_approve, get_next_month_date
+from BankOfSoftUni.helpers.parametrizations import ALLOWED_CURRENCIES
 
 
 class CustomerPanelView(views.DetailView):
@@ -83,6 +84,7 @@ def search_customer_by_parameter(request):
 def customer_details(request, pk):
     customer = IndividualCustomer.objects.get(pk=pk)
     accounts = customer.customer_accounts.all()
+    loans = BankLoan.objects.all().filter(customer_debtor_id=pk)
 
     # get customer and user and assign to account
     if request.method == 'POST':
@@ -102,6 +104,7 @@ def customer_details(request, pk):
         'user': request.user,
         'form': form,
         'accounts': accounts,
+        'loans': loans,
     }
 
     return render(request, 'customer_dashboard/customer_details.html', context)
@@ -148,9 +151,10 @@ def loan_create(request, pk):
     # If loan is confirmed, create loan object with the saved data from the session
     if request.method == 'POST':
         # account = Account.objects.all().filter(pk=request.POST.get('account_credit'))[:1].get()
-        account_query = [acc for acc in customer.customer_accounts.all() if
-                   acc.account_number == request.POST.get('account_credit')]
-        account = list(account_query[:1])[0]
+        # account_query = [acc for acc in customer.customer_accounts.all() if
+        #            acc.account_number == request.POST.get('account_credit')]
+        # account = list(account_query[:1])[0]
+        account = customer.customer_accounts.all().filter(pk=request.POST.get('account_credit'))[:1].get()
         loan = BankLoan(
             currency="BGN",
             principal=request.session.get('principal'),
@@ -161,10 +165,12 @@ def loan_create(request, pk):
             customer_debtor=context['customer'],
             assigned_user=request.user,
             principal_remainder=request.session.get('principal'),
-            account_credit=r,
+            account_credit=account,
         )
         loan.save()
-        account.available_balance = loan.principal
+        account.available_balance = float(loan.principal) / ALLOWED_CURRENCIES[account.currency]
         account.save()
-        return render(request, 'customer_dashboard/customer_details.html', customer.pk)
+
+        return redirect('customer details', customer.pk)
+
     return render(request, 'customer_dashboard/loan_create.html', context)

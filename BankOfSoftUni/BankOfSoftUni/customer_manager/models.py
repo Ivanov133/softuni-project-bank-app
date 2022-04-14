@@ -2,7 +2,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 from BankOfSoftUni.auth_app.models import Profile, BankUser
-from BankOfSoftUni.helpers.common import calc_foreign_currency_to_BGN
+from BankOfSoftUni.helpers.common import calc_foreign_currency_to_BGN, get_loan_end_date
 
 
 class IndividualCustomer(models.Model):
@@ -144,6 +144,9 @@ class Account(models.Model):
     def local_currency(self):
         return calc_foreign_currency_to_BGN(self.available_balance, self.currency)
 
+    def __str__(self):
+        return f'{self.account_number}: {self.available_balance:.2f} {self.currency}'
+
 
 class BankLoan(models.Model):
     # TO DO ADD FIXTURES
@@ -207,3 +210,7 @@ class BankLoan(models.Model):
     @property
     def loan_number(self):
         return f'LN{self.customer_debtor.customer_number}{self.currency}'
+
+    @property
+    def end_date(self):
+        return get_loan_end_date(self.open_date, self.duration_in_years)

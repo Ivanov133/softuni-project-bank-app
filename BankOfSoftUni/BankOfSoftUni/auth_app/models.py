@@ -37,7 +37,8 @@ class Profile(models.Model):
     EMPLOYEE_POSITIONS = [(x, x) for x in (
         'Cashier',
         'Credit consultant',
-        'Branch manager'
+        'Branch manager',
+        'Moderator',
     )]
 
     first_name = models.CharField(
@@ -82,12 +83,9 @@ class Profile(models.Model):
     )
 
     def __str__(self):
-        return f'{self.first_name} {self.last_name}: --{self.employee_role}--'
+        return f'{self.user.username}: {self.first_name} {self.last_name} - {self.employee_role}'
 
     @property
     def full_name(self):
         return f'{self.first_name} {self.last_name}'
 
-
-class TESTS(models.Model):
-    pass

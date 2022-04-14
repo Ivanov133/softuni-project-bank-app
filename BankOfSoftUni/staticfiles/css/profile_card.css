@@ -19,32 +19,24 @@
 
 
 .customer_card {
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-    max-width: 55%;
+    box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.2);
+    max-width: 60%;
     margin: auto;
     text-align: left;
     padding-top: 20px;
     padding-bottom: 20px;
 
 }
-.customer_card button {
 
-}
 .customer_card img {
     margin-left: auto;
     margin-right: auto;
-    display: block;
-    position: center;
+    display: inline-block;
+    position: relative;
     max-width: 60%;
     min-width: 60%;
 }
 
-p {
-    color: darkorange;
-    font-size: medium;
-    font-weight: bold;
-    padding-left: 15px;
-}
 
 th, td {
     padding: 15px;
@@ -53,14 +45,17 @@ th, td {
 }
 
 table {
+    background-color: white;
     margin-left: auto;
     margin-right: auto;
-    border-left: solid;
-    border-right: solid;
-    border-top: solid;
-    max-width: 70%;
-    min-width: 70%;
+    /*border-left: solid;*/
+    /*border-right: solid;*/
+    /*border-top: solid;*/
+    max-width: 85%;
+    min-width: 85%;
     border-collapse: collapse;
+    margin-bottom: 15px;
+    margin-top: 15px;
 }
 
 tr:hover {
@@ -69,11 +64,23 @@ tr:hover {
 
 tr {
     border: none;
+
+}
+
+.main-tr {
+    background-color: black;
+    color: darkorange;
+    font-weight: bolder;
+    font-size: large;
+}
+
+.main-tr:hover {
+    background-color: black;
 }
 
 th, td {
     border-collapse: collapse;
     border: 2px solid black;
-    padding-top: 0;
-    padding-bottom: 0;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
