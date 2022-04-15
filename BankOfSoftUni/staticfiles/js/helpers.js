@@ -4,7 +4,6 @@ document.getElementById('show-accounts-btn').addEventListener('click', display_a
 document.getElementById('show-loans-btn').addEventListener('click', display_loans_list)
 document.getElementById('show-customer-details').addEventListener('click', display_customer_details)
 
-
 function display_form_account(ev) {
     let form_style = document.getElementById('account-open').style.display
     if (form_style == 'none') {

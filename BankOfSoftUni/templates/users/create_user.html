@@ -2,7 +2,7 @@
 
 {% block page_content %}
     <div id="form-register">
-        <form method="POST" action="{% url 'register' %}">
+        <form method="POST" action="{% url 'register' %}"  enctype="multipart/form-data">
             {% csrf_token %}
             {% for field in form %}
                 <div>

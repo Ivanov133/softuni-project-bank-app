@@ -28,10 +28,10 @@ class Profile(models.Model):
     FIRST_NAME_MAX_LENGTH = 40
     LAST_NAME_MIN_LENGTH = 2
     LAST_NAME_MAX_LENGTH = 40
+    IMAGE_UPLOAD_DIR = 'profile_images'
 
     GENDERS = [(x, x) for x in ('Male', 'Female')]
 
-    IMAGE_UPLOAD_DIR = 'profile_images'
     IMAGE_MAX_SIZE_IN_MB = 5
 
     EMPLOYEE_POSITIONS = [(x, x) for x in (
@@ -40,6 +40,7 @@ class Profile(models.Model):
         'Credit consultant',
         'Branch manager',
         'Moderator',
+        'ADMINISTRATOR',
     )]
 
     first_name = models.CharField(

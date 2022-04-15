@@ -3,12 +3,40 @@
 
 {% block page_content %}
     <link rel="stylesheet" href="{% static 'css/profile_card.css' %}">
+    <script src="{% static "js/helpers_profile.js" %}" type="module"></script>
+
+
     <div class="profile_card">
-        <img src="{{ profile.profile_pic.url }}">
+        <img alt="" src="{{ profile.profile_pic.url }}">
         <h1>{{ profile.full_name }}</h1>
         <p>{{ profile.employee_role }}</p>
-        <p>User: {{ profile.user }}</p>
-            <button>Tasks</button>
-    <a class="profile-anchor" href="{% url 'profile edit' object.pk %}"> Edit Profile</a>
+        <p>User: {{ profile.user.username }}</p>
+        <button id="show_target_list">Show target completion</button>
+        <a class="profile-anchor" href="{% url 'profile edit' pk %}">Edit profile</a>
+
+    </div>
+    <div id="target_list" style="display: none">
+        <table>
+            <tr class="main-tr">
+                <th>Target registered clients</th>
+                <th>Actual registered clients</th>
+                <th>Target opened accounts</th>
+                <th>Actual opened accounts</th>
+                <th>Target opened loans</th>
+                <th>Actual opened loans</th>
+                <th>Target opened loans size</th>
+                <th>Actual opened loans size</th>
+            </tr>
+            <tr>
+                <th>{{ profile_target_data.registered_clients_target }}</th>
+                <th>{{ profile_target_data.registered_clients_actual }}</th>
+                <th>{{ profile_target_data.opened_accounts_target }}</th>
+                <th>{{ profile_target_data.opened_accounts_actual }}</th>
+                <th>{{ profile_target_data.opened_loans_count_target }}</th>
+                <th>{{ profile_target_data.opened_loans_actual }}</th>
+                <th>{{ profile_target_data.total_loans_size_target }}</th>
+                <th>{{ profile_target_data.total_loans_size_actual }}</th>
+            </tr>
+        </table>
     </div>
 {% endblock %}

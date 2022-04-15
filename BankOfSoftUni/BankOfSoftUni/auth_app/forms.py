@@ -18,7 +18,7 @@ class CreateProfileForm(auth_forms.UserCreationForm):
             validate_only_letters,)
 
     )
-    profile_pic = forms.URLField()
+    profile_pic = forms.ImageField()
     gender = forms.ChoiceField(
         choices=Profile.GENDERS,
     )

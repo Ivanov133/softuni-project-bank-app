@@ -3,6 +3,7 @@
 
 {% block page_content %}
     <link rel="stylesheet" href="{% static 'css/profile_card.css' %}">
+    <script src="{% static "js/helpers.js" %}" type="module"></script>
 
     <div class="customer_card">
         <a class="profile-anchor" href="{% url 'loan check' customer.id %}">Start loan procedure</a>

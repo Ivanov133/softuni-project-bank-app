@@ -3,6 +3,7 @@ from django.db import models
 
 from BankOfSoftUni.auth_app.models import Profile, BankUser
 from BankOfSoftUni.helpers.common import calc_foreign_currency_to_BGN, get_loan_end_date
+from BankOfSoftUni.helpers.validators import validate_only_letters
 
 
 class IndividualCustomer(models.Model):
@@ -15,6 +16,9 @@ class IndividualCustomer(models.Model):
 
     first_name = models.CharField(
         max_length=MAX_FIRST_NAME_LEN,
+        validators=(
+            validate_only_letters,
+        )
     )
 
     # Foreign clients may not have sirname
@@ -22,16 +26,23 @@ class IndividualCustomer(models.Model):
         max_length=MAX_SIR_NAME_LEN,
         blank=True,
         null=True,
+        validators=(
+            validate_only_letters,
+        )
     )
 
     last_name = models.CharField(
         max_length=MAX_LAST_NAME_LEN,
+        validators=(
+            validate_only_letters,
+        )
     )
 
     ucn = models.BigIntegerField(
         unique=True,
         validators=(
-            MinValueValidator(0),
+            MinValueValidator(1000000000),
+            MaxValueValidator(9999999999),
         ),
     )
 
@@ -60,6 +71,9 @@ class IndividualCustomer(models.Model):
         blank=True,
         null=True,
         default='unemployed',
+        validators=(
+            validate_only_letters,
+        )
     )
 
     gender = models.CharField(

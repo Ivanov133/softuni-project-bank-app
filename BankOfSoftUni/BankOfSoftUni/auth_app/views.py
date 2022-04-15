@@ -1,3 +1,4 @@
+from django.db.models import Model
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views import generic as views
@@ -71,3 +72,14 @@ def logout_view(request):
 class ProfileDetailsView(auth_mixin.LoginRequiredMixin, views.DetailView):
     model = Profile
     template_name = 'users/profile_details.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['pk'] = self.object.pk
+        try:
+            profile_target_data = UserAnnualTargets.objects.get(pk=self.object.pk)
+        except UserAnnualTargets.DoesNotExist:
+            profile_target_data = 'There is no uploaded target for this user.'
+        context['profile_target_data'] = profile_target_data
+
+        return context
