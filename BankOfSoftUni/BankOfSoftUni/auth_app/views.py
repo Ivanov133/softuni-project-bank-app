@@ -1,4 +1,3 @@
-from django.db.models import Model
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views import generic as views

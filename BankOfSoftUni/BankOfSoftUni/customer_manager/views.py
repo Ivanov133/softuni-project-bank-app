@@ -67,6 +67,8 @@ class CustomerEditView(LoginRequiredMixin, views.UpdateView):
     def get_success_url(self):
         return reverse_lazy('customer details', kwargs={'pk': self.object.id})
 
+
+# Search customer and redirect to details view
 @login_required()
 def search_customer_by_parameter(request):
     customer = None
@@ -105,6 +107,7 @@ def search_customer_by_parameter(request):
 
         return render(request, 'customer_dashboard/customer_search.html', context)
 
+
 @login_required()
 def customer_details(request, pk):
     customer = IndividualCustomer.objects.get(pk=pk)
@@ -135,6 +138,7 @@ def customer_details(request, pk):
 
     return render(request, 'customer_dashboard/customer_details.html', context)
 
+
 @login_required()
 def loan_check(request, pk):
     clear_request_session_loan_params(request)
@@ -148,6 +152,8 @@ def loan_check(request, pk):
         customer_loan_exposition += loan.principal
     # GET loan principal and duration
     # Pass them on to calculation functions
+    # SET session data
+
     if request.method == 'GET':
         principal = request.GET.get('principal')
         period = request.GET.get('period')
@@ -162,8 +168,6 @@ def loan_check(request, pk):
                 request.session[
                     'error'] = f'Current loan exposition for this customer exceeded by {customer_loan_exposition + float(principal) - CUSTOMER_MAX_LOAN_EXPOSITION:.2f} BGN'
                 return redirect('loan check', customer.pk)
-
-            # store data in session to pass along for create loan view
 
             loan_calculator = loan_approve(customer.annual_income, float(principal), int(period))
             context['loan_data'] = loan_calculator

@@ -1,6 +1,4 @@
 from django.contrib import admin
-
-# Register your models here.
 from BankOfSoftUni.customer_manager.models import IndividualCustomer, Account, BankLoan
 
 

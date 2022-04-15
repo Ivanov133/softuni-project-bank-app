@@ -4,6 +4,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from datetime import date
 from BankOfSoftUni.auth_app.models import Profile
 from BankOfSoftUni.customer_manager.models import IndividualCustomer, Account, BankLoan
+from BankOfSoftUni.tasks_app.models import UserAnnualTargets
 
 UserModel = get_user_model()
 
@@ -14,7 +15,10 @@ class CustomerPanelTest(django_test.TestCase):
         'username': 'ST4884',
         'password': 'qweqwe',
     }
-
+    USER2_CREDENTIALS = {
+        'username': 'ST45',
+        'password': 'qweqwe',
+    }
     PROFILE_DATA = {
         'first_name': 'Petar',
         'last_name': 'Ivanov',
@@ -40,7 +44,6 @@ class CustomerPanelTest(django_test.TestCase):
         'available_balance': 0,
         'debit_card': 'VISA',
     }
-
     VALID_LOAN_DATA = {
         'currency': 'BGN',
         'principal_remainder': 100000,
@@ -50,6 +53,12 @@ class CustomerPanelTest(django_test.TestCase):
         'interest_rate': 5.5,
         'monthly_payment_value': 156.25,
     }
+    VALID_TARGET_DATA = {
+        'registered_clients_target': 20,
+        'opened_accounts_target': 20,
+        'opened_loans_count_target': 20,
+        'total_loans_size_target': 200000,
+    }
 
     def get_profile(self):
         user = UserModel.objects.create_user(**self.USER_CREDENTIALS)
@@ -57,7 +66,6 @@ class CustomerPanelTest(django_test.TestCase):
             **self.PROFILE_DATA,
             user=user,
         )
-
         return profile
 
     def test_create_customer(self):
@@ -74,7 +82,6 @@ class CustomerPanelTest(django_test.TestCase):
             **self.VALID_CUSTOMER_DATA,
             assigned_user=user,
         )
-
         account = Account.objects.create(
             **self.VALID_ACCOUNT_DATA,
             assigned_user=user,
@@ -83,12 +90,31 @@ class CustomerPanelTest(django_test.TestCase):
 
         return [user, account, customer]
 
-
     def test_create_loan(self):
         user, account, customer = self.test_create_account()
-        BankLoan.objects.create(
+        loan = BankLoan.objects.create(
             **self.VALID_LOAN_DATA,
             customer_debtor=customer,
             account_credit=account,
             assigned_user=user,
         )
+        return [user, account, customer, loan]
+
+    def test_create_target_list(self):
+        user = UserModel.objects.create_user(**self.USER2_CREDENTIALS)
+        profile = Profile.objects.create(
+            **self.PROFILE_DATA,
+            user=user,
+        )
+
+        target_list = UserAnnualTargets.objects.create(
+            **self.VALID_TARGET_DATA,
+            profile=profile,
+        )
+        return target_list
+
+    def test_if_target_list_is_updated(self):
+        target_list = self.test_create_target_list()
+        user, account, customer, loan = self.test_create_loan()
+
+        self.assertEqual(1, target_list.opened_accounts_actual)
