@@ -17,7 +17,6 @@
         {% if not request.user.is_authenticated %}
             <a href="{% url 'login' %}">Login</a>
         {% else %}
-            <a class="align-left" href="{% url 'logout' %}">Logout</a>
             <div class="dropdown">
                 <span>Welcome, {{ request.user.username }}</span>
                 <div class="dropdown-content">

@@ -18,24 +18,47 @@
     <div id="target_list" style="display: none">
         <table>
             <tr class="main-tr">
-                <th>Target registered clients</th>
                 <th>Actual registered clients</th>
-                <th>Target opened accounts</th>
+                <th>Target registered clients</th>
+                <th>Completion(%):</th>
                 <th>Actual opened accounts</th>
-                <th>Target opened loans</th>
+                <th>Target opened accounts</th>
+                <th>Completion(%):</th>
                 <th>Actual opened loans</th>
-                <th>Target opened loans size</th>
+                <th>Target opened loans</th>
+                <th>Completion(%):</th>
                 <th>Actual opened loans size</th>
+                <th>Target opened loans size</th>
+                <th>Completion(%):</th>
+
             </tr>
             <tr>
                 <th>{{ profile_target_data.registered_clients_target }}</th>
                 <th>{{ profile_target_data.registered_clients_actual }}</th>
+                <th>{{ profile_target_data.calc_customers_target_completion }}</th>
                 <th>{{ profile_target_data.opened_accounts_target }}</th>
                 <th>{{ profile_target_data.opened_accounts_actual }}</th>
+                <th>{{ profile_target_data.calc_accounts_target_completion }}</th>
                 <th>{{ profile_target_data.opened_loans_count_target }}</th>
                 <th>{{ profile_target_data.opened_loans_actual }}</th>
+                <th>{{ profile_target_data.calc_loans_count_target_completion }}</th>
                 <th>{{ profile_target_data.total_loans_size_target }}</th>
                 <th>{{ profile_target_data.total_loans_size_actual }}</th>
+                <th>{{ profile_target_data.calc_loans_amount_target_completion }}</th>
+            </tr>
+        </table>
+            <table>
+            <tr class="main-tr">
+                <th>Clients completion(%):</th>
+                <th>Accounts completion(%):</th>
+                <th>Loan count completion(%):</th>
+                <th>Loan value completion(%):</th>
+            </tr>
+            <tr>
+                <th>{{ profile_target_data.calc_customers_target_completion }}</th>
+                <th>{{ profile_target_data.calc_accounts_target_completion }}</th>
+                <th>{{ profile_target_data.calc_loans_count_target_completion }}</th>
+                <th>{{ profile_target_data.calc_loans_amount_target_completion }}</th>
             </tr>
         </table>
     </div>
