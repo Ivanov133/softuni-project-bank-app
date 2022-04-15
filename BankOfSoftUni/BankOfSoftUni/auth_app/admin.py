@@ -6,5 +6,4 @@ from BankOfSoftUni.auth_app.models import Profile
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('first_name', 'last_name')
-
+    list_display = ('user', 'first_name', 'last_name', 'employee_role')

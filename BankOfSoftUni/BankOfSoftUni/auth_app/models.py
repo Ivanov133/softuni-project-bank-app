@@ -35,6 +35,7 @@ class Profile(models.Model):
     IMAGE_MAX_SIZE_IN_MB = 5
 
     EMPLOYEE_POSITIONS = [(x, x) for x in (
+        'Trainee',
         'Cashier',
         'Credit consultant',
         'Branch manager',

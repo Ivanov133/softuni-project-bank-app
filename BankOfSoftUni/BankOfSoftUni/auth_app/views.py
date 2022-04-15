@@ -44,9 +44,7 @@ class HomeView(views.TemplateView):
     template_name = 'main/home.html'
 
     def get_context_data(self, **kwargs):
-        return {
-            'test': 'IT WORRKS'
-        }
+        my_targets_completion = Tar
 
 
 def logout_view(request):

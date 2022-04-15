@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="{% static 'css/profile_card.css' %}">
 
     <div class="customer_card">
-        <a class="profile-anchor" href="{% url 'loan create' customer.id %}">Start loan procedure</a>
+        <a class="profile-anchor" href="{% url 'loan check' customer.id %}">Start loan procedure</a>
 
         <img src="{{ customer.id_card.url }}">
         <button id="show-customer-details">Show customer details</button>
@@ -36,19 +36,20 @@
             <button type="submit">Open Account</button>
         </form>
     </div>
-    {% if loans %}
-        <table id="loan-list-table" style="display: block">
-            <tr class="main-tr">
-                <th>Loan number</th>
-                <th>Currency</th>
-                <th>Monthly payment</th>
-                <th>Next payment due date</th>
-                <th>Current month paid</th>
-                <th>Serving account</th>
-                <th>Remaining principal</th>
-                <th>Open date</th>
-                <th>End date</th>
-            </tr>
+
+    <table id="loan-list-table" style="display: none">
+        <tr class="main-tr">
+            <th>Loan number</th>
+            <th>Currency</th>
+            <th>Monthly payment</th>
+            <th>Next payment due date</th>
+            <th>Current month paid</th>
+            <th>Serving account</th>
+            <th>Remaining principal</th>
+            <th>Open date</th>
+            <th>End date</th>
+        </tr>
+        {% if loans %}
             {% for loan in loans %}
                 <tr>
                     <th>{{ loan.loan_number }}</th>
@@ -65,9 +66,9 @@
 
 
             {% endfor %}
-        </table>
-    {% endif %}
-    <table id="accounts-list-table" style="display: block">
+            </table>
+        {% endif %}
+    <table id="accounts-list-table" style="display: none">
         <tr class="main-tr">
             <th>IBAN</th>
             <th>Open Currency</th>

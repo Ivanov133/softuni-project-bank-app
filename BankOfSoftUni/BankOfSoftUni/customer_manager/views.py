@@ -1,16 +1,41 @@
+from django.contrib import messages
+from django.core.exceptions import ValidationError
 from django.http import QueryDict
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import generic as views
 from BankOfSoftUni.customer_manager.forms import CreateCustomerForm, AccountOpenForm, CreateLoanForm
 from BankOfSoftUni.customer_manager.models import IndividualCustomer, Account, BankLoan
-from BankOfSoftUni.helpers.common import loan_approve, get_next_month_date
-from BankOfSoftUni.helpers.parametrizations import ALLOWED_CURRENCIES
+from BankOfSoftUni.helpers.common import loan_approve, get_next_month_date, \
+    update_target_list_accounts, update_target_list_loans, set_request_session_loan_params, \
+    clear_request_session_loan_params
+from BankOfSoftUni.helpers.parametrizations import ALLOWED_CURRENCIES, MAX_LOAN_DURATION_YEARS, MAX_LOAN_PRINCIPAL, \
+    MIN_LOAN_PRINCIPAL, CUSTOMER_MAX_LOAN_EXPOSITION
 
 
 class CustomerPanelView(views.DetailView):
     model = IndividualCustomer
     template_name = 'customer_dashboard/customer_details.html'
+
+
+class LoanCreateView(views.CreateView):
+    template_name = 'customer_dashboard/loan_create.html'
+    form_class = CreateLoanForm
+    success_url = reverse_lazy('customer details')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        kwargs['principal'] = self.request.session.get('principal')
+        kwargs['period'] = self.request.session.get('period')
+        kwargs['monthly_payment'] = self.request.session.get('monthly_payment')
+        kwargs['interest_rate'] = self.request.session.get('interest_rate')
+        kwargs['customer'] = IndividualCustomer.objects.get(pk=self.request.session.get('customer_id'))
+        kwargs['accounts'] = Account.objects.all().filter(customer_id=kwargs['customer'].pk)
+        return kwargs
+
+    def get_success_url(self):
+        return reverse_lazy('customer details', kwargs={'pk': self.request.session.get('customer_id')})
 
 
 class CustomerRegisterView(views.CreateView):
@@ -94,6 +119,7 @@ def customer_details(request, pk):
             account = form.save(commit=False)
             account.assigned_user = request.user
             account.customer = customer
+            update_target_list_accounts(request.user.id)
             form.save()
             return redirect('customer details', customer.id)
     else:
@@ -110,67 +136,37 @@ def customer_details(request, pk):
     return render(request, 'customer_dashboard/customer_details.html', context)
 
 
-def loan_create(request, pk):
+def loan_check(request, pk):
+    clear_request_session_loan_params(request)
     customer = IndividualCustomer.objects.get(pk=pk)
-    # All accounts are used for the form choice field
-    accounts = Account.objects.all().filter(customer_id=customer.id)
     context = {
         'customer': customer,
-        'accounts': accounts,
     }
+    clear_request_session_loan_params(request)
+    customer_loan_exposition = 0
+    for loan in BankLoan.objects.all().filter(customer_debtor=customer.id):
+        customer_loan_exposition += loan.principal
     # GET loan principal and duration
     # Pass them on to calculation functions
-    # Populate the next form with the returned values
     if request.method == 'GET':
         principal = request.GET.get('principal')
         period = request.GET.get('period')
         if period and principal:
+            if MIN_LOAN_PRINCIPAL > float(principal) or float(
+                    principal) > MAX_LOAN_PRINCIPAL or MAX_LOAN_DURATION_YEARS < int(period) or int(period) < 1:
+                request.session[
+                    'error'] = f'Please enter valid parameters! Maximum period is {MAX_LOAN_DURATION_YEARS} years. Principal must be in range {MIN_LOAN_PRINCIPAL} - {MAX_LOAN_PRINCIPAL} BGN!'
+                return redirect('loan check', customer.pk)
+
+            if customer_loan_exposition + float(principal) > CUSTOMER_MAX_LOAN_EXPOSITION:
+                request.session[
+                    'error'] = f'Current loan exposition for this customer exceeded by {customer_loan_exposition + float(principal) - CUSTOMER_MAX_LOAN_EXPOSITION:.2f} BGN'
+                return redirect('loan check', customer.pk)
+
+            # store data in session to pass along for create loan view
+
             loan_calculator = loan_approve(customer.annual_income, float(principal), int(period))
-            context['loan_result'] = loan_calculator
-            context['accounts'] = accounts
-            context['principal'] = principal
-            context['period'] = period
-            form = CreateLoanForm(
-                accounts,
-                customer,
-                request.user,
-                loan_calculator['interest_rate'],
-                loan_calculator['monthly_payment'],
-                principal,
-                period,
-            )
-            context['form'] = form
+            context['loan_data'] = loan_calculator
+            set_request_session_loan_params(request, loan_calculator, principal, period, customer.id)
 
-            # store data in session
-            request.session['monthly_payment'] = loan_calculator['monthly_payment']
-            request.session['principal'] = principal
-            request.session['period'] = period
-            request.session['interest_rate'] = loan_calculator['interest_rate']
-            request.session.modified = True
-
-    # If loan is confirmed, create loan object with the saved data from the session
-    if request.method == 'POST':
-        # account = Account.objects.all().filter(pk=request.POST.get('account_credit'))[:1].get()
-        # account_query = [acc for acc in customer.customer_accounts.all() if
-        #            acc.account_number == request.POST.get('account_credit')]
-        # account = list(account_query[:1])[0]
-        account = customer.customer_accounts.all().filter(pk=request.POST.get('account_credit'))[:1].get()
-        loan = BankLoan(
-            currency="BGN",
-            principal=request.session.get('principal'),
-            interest_rate=request.session.get('interest_rate'),
-            duration_in_years=request.session.get('period'),
-            next_monthly_payment_due_date=get_next_month_date(),
-            monthly_payment_value=request.session.get('monthly_payment'),
-            customer_debtor=context['customer'],
-            assigned_user=request.user,
-            principal_remainder=request.session.get('principal'),
-            account_credit=account,
-        )
-        loan.save()
-        account.available_balance = float(loan.principal) / ALLOWED_CURRENCIES[account.currency]
-        account.save()
-
-        return redirect('customer details', customer.pk)
-
-    return render(request, 'customer_dashboard/loan_create.html', context)
+    return render(request, 'customer_dashboard/loan_check.html', context)

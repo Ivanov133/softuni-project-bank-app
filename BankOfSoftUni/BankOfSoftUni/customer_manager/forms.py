@@ -1,44 +1,68 @@
 import datetime
 from django import forms
+from django.core.exceptions import ValidationError
 
 from BankOfSoftUni.customer_manager.models import IndividualCustomer, Account, BankLoan
-from BankOfSoftUni.helpers.common import get_next_month_date
+from BankOfSoftUni.helpers.common import get_next_month_date, update_target_list_customer, \
+    clear_request_session_loan_params, update_target_list_loans, \
+    calc_local_currency_to_foreign
 
 
 class CreateLoanForm(forms.ModelForm):
-    def __init__(self, accounts, customer, user, interest_rate, monthly_payment,
-                 principal, period, *args, **kwargs):
+    def __init__(self, user, principal, interest_rate, monthly_payment, customer, accounts, period, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.accounts = accounts
-        self.customer = customer
         self.user = user
-        self.interest_rate = interest_rate
-        self.monthly_payment = monthly_payment
-        self.next_monthly_payment_due_date = get_next_month_date()
+        self.accounts = accounts
         self.principal = principal
         self.period = period
-        self.initial['principal'] = principal
-        self.initial['interest_rate'] = interest_rate
-        self.initial['duration_in_years'] = period
-        self.initial['next_monthly_payment_due_date'] = self.next_monthly_payment_due_date
-        self.initial['monthly_payment_value'] = monthly_payment
-        self.initial['customer_debtor'] = customer
-        self.initial['assigned_user'] = user
-
-        # disable all fields and handle account choices
+        self.interest_rate = interest_rate
+        self.monthly_payment = monthly_payment
+        self.customer = customer
+        self.initial['principal'] = self.principal
+        self.initial['interest_rate'] = self.interest_rate
+        self.initial['duration_in_years'] = self.period
+        self.initial['monthly_payment_value'] = self.monthly_payment
+        self.fields['account_credit'].choices = [(acc, acc.account_number) for acc in self.accounts]
         for name, field in self.fields.items():
             if not name == 'account_credit':
-                field.widget.attrs['disabled'] = 'disabled'
-            # else:
-            #     field.choices = ((x, x) for x in [acc.account_number for acc in accounts])
+                field.widget.attrs['readonly'] = True
+
+    def save(self, commit=True):
+        loan = BankLoan(
+            principal=self.cleaned_data['principal'],
+            interest_rate=self.cleaned_data['interest_rate'],
+            duration_in_years=self.cleaned_data['duration_in_years'],
+            monthly_payment_value=self.cleaned_data['monthly_payment_value'],
+            account_credit=self.cleaned_data['account_credit'],
+            assigned_user=self.user,
+            customer_debtor=self.customer,
+            currency=self.cleaned_data['currency'],
+            principal_remainder=self.cleaned_data['principal'],
+            next_monthly_payment_due_date=get_next_month_date(),
+            account_credit_id=self.cleaned_data['account_credit'].id,
+        )
+
+        if commit:
+            # Add balance to account
+            # Add loan to target list
+            # save loan
+            account = Account.objects.get(pk=self.cleaned_data['account_credit'].id)
+            account.available_balance += calc_local_currency_to_foreign(float(self.cleaned_data['principal']), account.currency)
+            account.save()
+
+            update_target_list_loans(self.user.id, self.cleaned_data['principal'])
+
+            loan.save()
+
+        return loan
 
     class Meta:
         model = BankLoan
         fields = (
+            'currency',
             'principal',
             'interest_rate',
             'duration_in_years',
-            'next_monthly_payment_due_date',
             'monthly_payment_value',
             'account_credit',
         )
@@ -52,6 +76,9 @@ class CreateCustomerForm(forms.ModelForm):
     def save(self, commit=True):
         customer = super().save(commit=False)
         customer.assigned_user = self.user
+
+        # Update target list in db - add one customer
+        update_target_list_customer(self.user.id)
 
         if commit:
             customer.save()

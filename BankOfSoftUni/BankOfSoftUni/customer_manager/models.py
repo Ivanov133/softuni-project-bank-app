@@ -131,6 +131,9 @@ class Account(models.Model):
         on_delete=models.DO_NOTHING,
     )
 
+    def __str__(self):
+        return str(self.id)
+
     # TO DO - create card and IBAN generators, depending on user branch etc.
     @property
     def account_number(self):
@@ -144,9 +147,6 @@ class Account(models.Model):
     def local_currency(self):
         return calc_foreign_currency_to_BGN(self.available_balance, self.currency)
 
-    def __str__(self):
-        return f'{self.account_number}: {self.available_balance:.2f} {self.currency}'
-
 
 class BankLoan(models.Model):
     # TO DO ADD FIXTURES
@@ -155,7 +155,9 @@ class BankLoan(models.Model):
     )
 
     MAX_LOAN_PRINCIPAL = 500000
+    MIN_LOAN_PRINCIPAL = 1000
     MAX_LOAN_DURATION_IN_YEARS = 30
+    MIN_LOAN_DURATION_IN_YEARS = 1
 
     currency = models.CharField(
         choices=[(x, x) for x in ALLOWED_CURRENCIES],
@@ -164,7 +166,8 @@ class BankLoan(models.Model):
     # initial value of the loan
     principal = models.FloatField(
         validators=(
-            MaxValueValidator,
+            MaxValueValidator(MAX_LOAN_PRINCIPAL),
+            MinValueValidator(MIN_LOAN_PRINCIPAL),
         )
     )
 
@@ -173,6 +176,7 @@ class BankLoan(models.Model):
     duration_in_years = models.IntegerField(
         validators=(
             MaxValueValidator(MAX_LOAN_DURATION_IN_YEARS),
+            MinValueValidator(MIN_LOAN_DURATION_IN_YEARS),
         )
     )
 
@@ -206,6 +210,7 @@ class BankLoan(models.Model):
     open_date = models.DateTimeField(
         auto_now_add=True,
     )
+
 
     @property
     def loan_number(self):
