@@ -1,31 +1,83 @@
 {% extends 'main/base.html' %}
+{% load static %}
 
 {% block page_content %}
-    <table id="sidebar">
-        <tr>
-            <td>
-                <a class="sidebar-anchor" href="{% url 'customer search' %}">Customer search</a>
-            </td>
-        <tr>
+    <link rel="stylesheet" href="{% static 'css/table-info.css' %}">
 
-            <td>
-                <a class="sidebar-anchor" href="{% url 'customer register' %}">Customer registration</a>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <a class="sidebar-anchor" href="{% url 'upload target' %}">Upload annual target</a>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <a class="sidebar-anchor" href="{% url 'upload target' %}">My customer portfolio</a>
-            </td>
-        </tr>
-            <tr>
-            <td>
-                <a class="sidebar-anchor" href="{% url 'customer details' 1 %}">My tasks ->>> DETAILS CUS</a>
-            </td>
-        </tr>
-    </table>
+    <div id="wrapper">
+        <div id="first">
+            <div class="row">
+                <div class="column">
+
+                    <table id="sidebar">
+
+                        <tr>
+                            <td>
+                                <a class="sidebar-anchor" href="{% url 'customer search' %}">Customer search</a>
+                            </td>
+                        <tr>
+
+                            <td>
+                                <a class="sidebar-anchor" href="{% url 'customer register' %}">Customer registration</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <a class="sidebar-anchor" href="{% url 'upload target' %}">Upload annual target</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <a class="sidebar-anchor" href="{% url 'upload target' %}">My customer portfolio</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <a class="sidebar-anchor" href="{% url 'customer details' 1 %}">My tasks ->>> DETAILS
+                                    CUS</a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div id="second">
+            <div class="row">
+                <div class="column">
+                    <table id="currency-table" class="home-table">
+                        <tr class="main-tr">
+                            <th>CURRENCY</th>
+                            <th>FIXTURE</th>
+                        </tr>
+                        {% for key, val in currency_ratios.items %}
+                            <tr>
+                                <th>{{ key }}</th>
+                                <th>{{ val }}</th>
+                            </tr>
+
+
+                        {% endfor %}
+                    </table>
+                </div>
+                <div class="column">
+                    <table id="currency-table" class="home-table">
+                        <tr class="main-tr">
+                            <th>Loan maximum principal</th>
+                            <th>Loan minimum principal</th>
+                            <th>Loan maximum duration</th>
+                            <th>Maximum loan exposition</th>
+                        </tr>
+                        <tr>
+                            <th>{{ loan_max_principal }}</th>
+                            <th>{{ loan_min_principal }}</th>
+                            <th>{{ loans_max_duration }}</th>
+                            <th>{{ loans_max_exposition }}</th>
+                        </tr>
+
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

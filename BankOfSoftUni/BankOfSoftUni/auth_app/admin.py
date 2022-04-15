@@ -1,9 +1,15 @@
 from django.contrib import admin
-
 # Register your models here.
-from BankOfSoftUni.auth_app.models import Profile
+from BankOfSoftUni.auth_app.models import Profile, BankUser
 
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'first_name', 'last_name', 'employee_role')
+
+
+@admin.register(BankUser)
+class BankUserAdmin(admin.ModelAdmin):
+    list_display = ('username', 'date_joined')
+
+

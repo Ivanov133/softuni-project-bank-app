@@ -7,6 +7,10 @@ from django.contrib.auth import mixins as auth_mixin
 
 from BankOfSoftUni.auth_app.forms import CreateProfileForm
 from BankOfSoftUni.auth_app.models import Profile
+from BankOfSoftUni.helpers.parametrizations import ALLOWED_CURRENCIES, \
+    LOAN_INTEREST_RATES_BASED_ON_PRINCIPAL_MIN_THRESHOLD_BGN, LOAN_INTEREST_RATES_DEDUCTIONS_BASED_ON_DURATION_YEARS, \
+    MAX_LOAN_DURATION_YEARS, MAX_LOAN_PRINCIPAL, MIN_LOAN_PRINCIPAL, CUSTOMER_MAX_LOAN_EXPOSITION
+from BankOfSoftUni.tasks_app.models import UserAnnualTargets
 
 
 class ProfileEditView(views.UpdateView):
@@ -44,7 +48,19 @@ class HomeView(views.TemplateView):
     template_name = 'main/home.html'
 
     def get_context_data(self, **kwargs):
-        my_targets_completion = Tar
+        bank_target_completion = UserAnnualTargets.objects.all()
+        context = {
+            "currency_ratios": ALLOWED_CURRENCIES,
+            "loans_max_duration": MAX_LOAN_DURATION_YEARS,
+            "loans_max_exposition": CUSTOMER_MAX_LOAN_EXPOSITION,
+            "loan_max_principal": MAX_LOAN_PRINCIPAL,
+            "loan_min_principal": MIN_LOAN_PRINCIPAL,
+            "loans_interest_rate": LOAN_INTEREST_RATES_BASED_ON_PRINCIPAL_MIN_THRESHOLD_BGN,
+            "loans_interest_rates_deduction": LOAN_INTEREST_RATES_DEDUCTIONS_BASED_ON_DURATION_YEARS,
+            "bank_target_completion": bank_target_completion
+        }
+
+        return context
 
 
 def logout_view(request):
@@ -55,4 +71,3 @@ def logout_view(request):
 class ProfileDetailsView(auth_mixin.LoginRequiredMixin, views.DetailView):
     model = Profile
     template_name = 'users/profile_details.html'
-

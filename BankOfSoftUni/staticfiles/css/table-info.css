@@ -1,0 +1,81 @@
+#currency-table {
+
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.row {
+  margin-left:-5px;
+  margin-right:-5px;
+}
+
+.column {
+  float: left;
+  width: 50%;
+  padding: 5px;
+}
+
+/* Clearfix (clear floats) */
+.row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  border: 1px solid #ddd;
+}
+
+table th, td {
+  text-align: left;
+  padding: 16px;
+}
+
+#wrapper {
+  display: flex;
+  border: 1px solid black;
+}
+#first {
+    /*border: 1px solid red;*/
+}
+#second {
+    /*border: 1px solid green;*/
+}
+
+
+th, td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 5px solid black;
+}
+/*tr:hover {*/
+/*    background-color: darkorange;*/
+/*}*/
+
+tr {
+    border: none;
+
+}
+
+.main-tr {
+    background-color: black;
+    color: darkorange;
+    font-weight: bolder;
+    font-size: large;
+}
+
+.main-tr:hover {
+    background-color: black;
+}
+
+th, td {
+    border-collapse: collapse;
+    border: 2px solid black;
+    padding-top: 1px;
+    padding-bottom: 1px;
+}

@@ -1,9 +1,30 @@
 {% extends 'main/base.html' %}
+{% load static %}
 {% block page_content %}
+        <link rel="stylesheet" href="{% static 'css/table-info.css' %}">
+        <link rel="stylesheet" href="{% static 'css/profile_card.css' %}">
+
     <div id="search_result">
         {% if not initial_page_load %}
-            <a href="{% url 'customer details' customer.id %}">See customer {{ customer.full_name }} details</a>
-            <a {% url 'customer search' %} >New search</a>
+            <table>
+
+                <tr>
+                    <td>
+                        <a href="{% url 'customer details' customer.id %}">See customer {{ customer.full_name }}
+                            details</a>
+                    </td>
+                <tr>
+
+                    <td>
+                        <a href="{% url 'customer edit' customer.id %}">Edit customer {{ customer.full_name }}</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a href="{% url 'customer search' %}">New search</a>
+                    </td>
+                </tr>
+            </table>
         {% else %}
             <div id="searchbar">
                 <form method="GET" action="{% url 'customer search' %}">

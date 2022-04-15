@@ -1,4 +1,5 @@
-from django.urls import path
+from django.urls import path, reverse_lazy
+from django.views.generic import RedirectView
 
 from BankOfSoftUni.auth_app.views import UserRegisterView, HomeView, UserLoginView, logout_view, ProfileDetailsView, \
     ProfileEditView

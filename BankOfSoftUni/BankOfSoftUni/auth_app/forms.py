@@ -31,7 +31,6 @@ class CreateProfileForm(auth_forms.UserCreationForm):
             last_name=self.cleaned_data['last_name'],
             profile_pic=self.cleaned_data['profile_pic'],
             gender=self.cleaned_data['gender'],
-            # is_superuser=self.cleaned_data['is_superuser'],
             user=user,
         )
 

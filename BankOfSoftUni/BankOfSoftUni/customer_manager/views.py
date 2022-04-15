@@ -1,15 +1,15 @@
-from django.contrib import messages
-from django.core.exceptions import ValidationError
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import QueryDict
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import generic as views
 from BankOfSoftUni.customer_manager.forms import CreateCustomerForm, AccountOpenForm, CreateLoanForm
 from BankOfSoftUni.customer_manager.models import IndividualCustomer, Account, BankLoan
-from BankOfSoftUni.helpers.common import loan_approve, get_next_month_date, \
-    update_target_list_accounts, update_target_list_loans, set_request_session_loan_params, \
+from BankOfSoftUni.helpers.common import loan_approve, \
+    update_target_list_accounts, set_request_session_loan_params, \
     clear_request_session_loan_params
-from BankOfSoftUni.helpers.parametrizations import ALLOWED_CURRENCIES, MAX_LOAN_DURATION_YEARS, MAX_LOAN_PRINCIPAL, \
+from BankOfSoftUni.helpers.parametrizations import MAX_LOAN_DURATION_YEARS, MAX_LOAN_PRINCIPAL, \
     MIN_LOAN_PRINCIPAL, CUSTOMER_MAX_LOAN_EXPOSITION
 
 
@@ -18,7 +18,7 @@ class CustomerPanelView(views.DetailView):
     template_name = 'customer_dashboard/customer_details.html'
 
 
-class LoanCreateView(views.CreateView):
+class LoanCreateView(LoginRequiredMixin, views.CreateView):
     template_name = 'customer_dashboard/loan_create.html'
     form_class = CreateLoanForm
     success_url = reverse_lazy('customer details')
@@ -38,7 +38,7 @@ class LoanCreateView(views.CreateView):
         return reverse_lazy('customer details', kwargs={'pk': self.request.session.get('customer_id')})
 
 
-class CustomerRegisterView(views.CreateView):
+class CustomerRegisterView(LoginRequiredMixin, views.CreateView):
     form_class = CreateCustomerForm
     template_name = 'customer_dashboard/customer_register.html'
     success_url = reverse_lazy('customer details')
@@ -58,7 +58,7 @@ class CustomerRegisterView(views.CreateView):
         return reverse('customer details', kwargs={'pk': self.pk})
 
 
-class CustomerEditView(views.UpdateView):
+class CustomerEditView(LoginRequiredMixin, views.UpdateView):
     model = IndividualCustomer
     template_name = 'customer_dashboard/customer_edit.html'
     fields = '__all__'
@@ -67,7 +67,7 @@ class CustomerEditView(views.UpdateView):
     def get_success_url(self):
         return reverse_lazy('customer details', kwargs={'pk': self.object.id})
 
-
+@login_required()
 def search_customer_by_parameter(request):
     customer = None
     search_by = None
@@ -105,7 +105,7 @@ def search_customer_by_parameter(request):
 
         return render(request, 'customer_dashboard/customer_search.html', context)
 
-
+@login_required()
 def customer_details(request, pk):
     customer = IndividualCustomer.objects.get(pk=pk)
     accounts = customer.customer_accounts.all()
@@ -135,7 +135,7 @@ def customer_details(request, pk):
 
     return render(request, 'customer_dashboard/customer_details.html', context)
 
-
+@login_required()
 def loan_check(request, pk):
     clear_request_session_loan_params(request)
     customer = IndividualCustomer.objects.get(pk=pk)
