@@ -31,6 +31,8 @@
 .customer_card img {
     margin-left: auto;
     margin-right: auto;
+    margin-bottom: 25px;
+    margin-top: 25px;
     display: inline-block;
     position: relative;
     max-width: 60%;

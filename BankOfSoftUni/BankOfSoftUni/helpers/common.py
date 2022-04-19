@@ -2,7 +2,7 @@ import datetime
 from dateutil.relativedelta import relativedelta
 
 from BankOfSoftUni.helpers.parametrizations import ALLOWED_CURRENCIES, \
-    LOAN_INTEREST_RATES_BASED_ON_PRINCIPAL_MIN_THRESHOLD_BGN, LOAN_INTEREST_RATES_DEDUCTIONS_BASED_ON_DURATION_YEARS, \
+    LOAN_INTEREST_RATES_BASED_ON_PRINCIPAL_MIN_THRESHOLD_BGN, LOAN_INTEREST_RATES_DEDUCTIONS_BASED_ON_DURATION_MONTHS, \
     MAX_INCOME_SHARE_AS_MONTHLY_LOAN_PAYMENT
 
 import numpy_financial as npf
@@ -16,8 +16,8 @@ def get_next_month_date():
     return next_month_date
 
 
-def get_loan_end_date(start_date, years):
-    end_date = start_date + relativedelta(months=years * 12)
+def get_loan_end_date(start_date, months):
+    end_date = start_date + relativedelta(months=months)
     return end_date
 
 
@@ -29,6 +29,7 @@ def calc_foreign_currency_to_BGN(value, currency):
     return value * ALLOWED_CURRENCIES[currency]
 
 
+# Based on parametrization
 def calc_loan_interest_rate(principal, period):
     interest_rate = 0
     # Calculate interest based on principal
@@ -36,18 +37,19 @@ def calc_loan_interest_rate(principal, period):
         if principal <= threshold and interest_rate < i_rate:
             interest_rate = i_rate
     # Further deductions based on duration of the loan
-    for threshold, i_rate in LOAN_INTEREST_RATES_DEDUCTIONS_BASED_ON_DURATION_YEARS.items():
+    for threshold, i_rate in LOAN_INTEREST_RATES_DEDUCTIONS_BASED_ON_DURATION_MONTHS.items():
         if period <= threshold:
-            interest_rate -= LOAN_INTEREST_RATES_DEDUCTIONS_BASED_ON_DURATION_YEARS[threshold]
+            interest_rate -= LOAN_INTEREST_RATES_DEDUCTIONS_BASED_ON_DURATION_MONTHS[threshold]
 
     return interest_rate
 
 
+# Get all loan fields
 def loan_approve(annual_income, principal, period):
     interest_rate_percentage = calc_loan_interest_rate(principal, period) / 100
-    monthly_payment = npf.pmt(interest_rate_percentage / 12, period * 12, principal) * -1
+    monthly_payment = npf.pmt(interest_rate_percentage / 12, period, principal) * -1
     loan_approval = annual_income / 12 * MAX_INCOME_SHARE_AS_MONTHLY_LOAN_PAYMENT >= monthly_payment
-    total_loan_costs = monthly_payment * period * 12
+    total_loan_costs = monthly_payment * period
     total_interest_costs = total_loan_costs - principal
     loan_first_payment = get_next_month_date()
 
@@ -58,6 +60,16 @@ def loan_approve(annual_income, principal, period):
         'total_loan_cost': f"{total_loan_costs:.2f}",
         'total_interest_costs': f'{total_interest_costs:.2f}',
         'loan_first_payment': loan_first_payment,
+    }
+
+
+def get_loan_monthly_payment_interest_and_principal(i_rate, period_months, principal):
+    interest_payment = npf.ipmt(i_rate / 12, 1, period_months, -principal)
+    principal_payment = npf.ppmt(i_rate / 12, 1, period_months, -principal)
+    
+    return {
+        'interest_payment': interest_payment,
+        'principal_payment': principal_payment,
     }
 
 
@@ -107,5 +119,3 @@ def clear_request_session_loan_params(request):
         del request.session["period"]
     if "customer_id" in request.session.keys():
         del request.session["customer_id"]
-    if "error" in request.session.keys():
-        del request.session["error"]

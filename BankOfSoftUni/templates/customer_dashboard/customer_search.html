@@ -9,13 +9,18 @@
 
                 <tr>
                     <td>
-                        <a href="{% url 'customer details' customer.id %}">See customer {{ customer.full_name }}
-                            details</a>
+                        <a href="{% url 'customer details' customer.id %}">
+                            Show Details - #{{ customer.customer_number }}: {{ customer.full_name }} -
+                            ID: {{ customer.document_number }}
+
+                                    <img src="{{ customer.id_card.url }}">
+
+                        </a>
                     </td>
                 <tr>
 
                     <td>
-                        <a href="{% url 'customer edit' customer.id %}">Edit customer {{ customer.full_name }}</a>
+                        <a href="{% url 'customer edit' customer.id %}">Edit customer</a>
                     </td>
                 </tr>
                 <tr>

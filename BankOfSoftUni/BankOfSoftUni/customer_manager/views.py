@@ -4,18 +4,28 @@ from django.http import QueryDict
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import generic as views
-from BankOfSoftUni.customer_manager.forms import CreateCustomerForm, AccountOpenForm, CreateLoanForm
+from BankOfSoftUni.customer_manager.forms import CreateCustomerForm, AccountOpenForm, CreateLoanForm, LoanEditForm
 from BankOfSoftUni.customer_manager.models import IndividualCustomer, Account, BankLoan
 from BankOfSoftUni.helpers.common import loan_approve, \
     update_target_list_accounts, set_request_session_loan_params, \
     clear_request_session_loan_params
-from BankOfSoftUni.helpers.parametrizations import MAX_LOAN_DURATION_YEARS, MAX_LOAN_PRINCIPAL, \
-    MIN_LOAN_PRINCIPAL, CUSTOMER_MAX_LOAN_EXPOSITION
+from BankOfSoftUni.helpers.parametrizations import MAX_LOAN_DURATION_MONTHS_PARAM, MAX_LOAN_PRINCIPAL_PARAM, \
+    MIN_LOAN_PRINCIPAL_PARAM, CUSTOMER_MAX_LOAN_EXPOSITION, MIN_LOAN_DURATION_MONTHS_PARAM
 
 
 class CustomerPanelView(views.DetailView):
     model = IndividualCustomer
     template_name = 'customer_dashboard/customer_details.html'
+
+
+class LoanUpdateView(LoginRequiredMixin, views.UpdateView):
+    model = BankLoan
+    template_name = 'customer_dashboard/loan_edit.html'
+    form_class = LoanEditForm
+    success_url = reverse_lazy('customer details')
+
+    def get_success_url(self):
+        return reverse_lazy('customer details', kwargs={'pk': self.pk_url_kwarg})
 
 
 class LoanCreateView(LoginRequiredMixin, views.CreateView):
@@ -35,7 +45,7 @@ class LoanCreateView(LoginRequiredMixin, views.CreateView):
         return kwargs
 
     def get_success_url(self):
-        return reverse_lazy('customer details', kwargs={'pk': self.request.session.get('customer_id')})
+        return reverse_lazy('customer details', kwargs={'pk': self.pk_url_kwarg})
 
 
 class CustomerRegisterView(LoginRequiredMixin, views.CreateView):
@@ -111,8 +121,10 @@ def search_customer_by_parameter(request):
 @login_required()
 def customer_details(request, pk):
     customer = IndividualCustomer.objects.get(pk=pk)
+    customer.bankloan_set.all()
     accounts = customer.customer_accounts.all()
-    loans = BankLoan.objects.all().filter(customer_debtor_id=pk)
+    # loans = BankLoan.objects.all().filter(customer_debtor_id=pk)
+    loans = customer.bankloan_set.all()
 
     # get customer and user and assign to account
     if request.method == 'POST':
@@ -150,18 +162,19 @@ def loan_check(request, pk):
     customer_loan_exposition = 0
     for loan in BankLoan.objects.all().filter(customer_debtor=customer.id):
         customer_loan_exposition += loan.principal
-    # GET loan principal and duration
-    # Pass them on to calculation functions
-    # SET session data
+
+    # GET loan principal and duration - check values with parametrization table
+    # Pass them on to calculation functions to get the needed variables for creating the loan
+    # SET session data to pass along to the create view
 
     if request.method == 'GET':
         principal = request.GET.get('principal')
         period = request.GET.get('period')
         if period and principal:
-            if MIN_LOAN_PRINCIPAL > float(principal) or float(
-                    principal) > MAX_LOAN_PRINCIPAL or MAX_LOAN_DURATION_YEARS < int(period) or int(period) < 1:
+            if MIN_LOAN_PRINCIPAL_PARAM > float(principal) or float(
+                    principal) > MAX_LOAN_PRINCIPAL_PARAM or MAX_LOAN_DURATION_MONTHS_PARAM < int(period) or int(period) < MIN_LOAN_DURATION_MONTHS_PARAM:
                 request.session[
-                    'error'] = f'Please enter valid parameters! Maximum period is {MAX_LOAN_DURATION_YEARS} years. Principal must be in range {MIN_LOAN_PRINCIPAL} - {MAX_LOAN_PRINCIPAL} BGN!'
+                    'error'] = f'Please enter valid parameters! Maximum period is {MAX_LOAN_DURATION_MONTHS_PARAM} months. Principal must be in range {MIN_LOAN_PRINCIPAL_PARAM} - {MAX_LOAN_PRINCIPAL_PARAM} BGN!'
                 return redirect('loan check', customer.pk)
 
             if customer_loan_exposition + float(principal) > CUSTOMER_MAX_LOAN_EXPOSITION:
@@ -172,5 +185,7 @@ def loan_check(request, pk):
             loan_calculator = loan_approve(customer.annual_income, float(principal), int(period))
             context['loan_data'] = loan_calculator
             set_request_session_loan_params(request, loan_calculator, principal, period, customer.id)
+            if request.session.get('error', None):
+                del request.session['error']
 
     return render(request, 'customer_dashboard/loan_check.html', context)

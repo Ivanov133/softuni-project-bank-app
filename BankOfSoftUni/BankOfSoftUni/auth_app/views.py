@@ -8,8 +8,8 @@ from django.contrib.auth import mixins as auth_mixin
 from BankOfSoftUni.auth_app.forms import CreateProfileForm
 from BankOfSoftUni.auth_app.models import Profile
 from BankOfSoftUni.helpers.parametrizations import ALLOWED_CURRENCIES, \
-    LOAN_INTEREST_RATES_BASED_ON_PRINCIPAL_MIN_THRESHOLD_BGN, LOAN_INTEREST_RATES_DEDUCTIONS_BASED_ON_DURATION_YEARS, \
-    MAX_LOAN_DURATION_YEARS, MAX_LOAN_PRINCIPAL, MIN_LOAN_PRINCIPAL, CUSTOMER_MAX_LOAN_EXPOSITION
+    LOAN_INTEREST_RATES_BASED_ON_PRINCIPAL_MIN_THRESHOLD_BGN, LOAN_INTEREST_RATES_DEDUCTIONS_BASED_ON_DURATION_MONTHS, \
+    MAX_LOAN_DURATION_MONTHS_PARAM, MAX_LOAN_PRINCIPAL_PARAM, MIN_LOAN_PRINCIPAL_PARAM, CUSTOMER_MAX_LOAN_EXPOSITION
 from BankOfSoftUni.tasks_app.models import UserAnnualTargets
 
 
@@ -51,12 +51,12 @@ class HomeView(views.TemplateView):
         bank_target_completion = UserAnnualTargets.objects.all()
         context = {
             "currency_ratios": ALLOWED_CURRENCIES,
-            "loans_max_duration": MAX_LOAN_DURATION_YEARS,
+            "loans_max_duration": MAX_LOAN_DURATION_MONTHS_PARAM,
             "loans_max_exposition": CUSTOMER_MAX_LOAN_EXPOSITION,
-            "loan_max_principal": MAX_LOAN_PRINCIPAL,
-            "loan_min_principal": MIN_LOAN_PRINCIPAL,
+            "loan_max_principal": MAX_LOAN_PRINCIPAL_PARAM,
+            "loan_min_principal": MIN_LOAN_PRINCIPAL_PARAM,
             "loans_interest_rate": LOAN_INTEREST_RATES_BASED_ON_PRINCIPAL_MIN_THRESHOLD_BGN,
-            "loans_interest_rates_deduction": LOAN_INTEREST_RATES_DEDUCTIONS_BASED_ON_DURATION_YEARS,
+            "loans_interest_rates_deduction": LOAN_INTEREST_RATES_DEDUCTIONS_BASED_ON_DURATION_MONTHS,
             "bank_target_completion": bank_target_completion
         }
 

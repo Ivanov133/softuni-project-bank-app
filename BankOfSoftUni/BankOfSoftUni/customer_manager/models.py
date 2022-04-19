@@ -3,6 +3,8 @@ from django.db import models
 
 from BankOfSoftUni.auth_app.models import Profile, BankUser
 from BankOfSoftUni.helpers.common import calc_foreign_currency_to_BGN, get_loan_end_date
+from BankOfSoftUni.helpers.parametrizations import MAX_LOAN_DURATION_MONTHS_PARAM, MIN_LOAN_DURATION_MONTHS_PARAM, \
+    MIN_LOAN_PRINCIPAL_PARAM, MAX_LOAN_PRINCIPAL_PARAM
 from BankOfSoftUni.helpers.validators import validate_only_letters
 
 
@@ -168,10 +170,10 @@ class BankLoan(models.Model):
         'BGN',
     )
 
-    MAX_LOAN_PRINCIPAL = 500000
-    MIN_LOAN_PRINCIPAL = 1000
-    MAX_LOAN_DURATION_IN_YEARS = 30
-    MIN_LOAN_DURATION_IN_YEARS = 1
+    MAX_LOAN_PRINCIPAL = MAX_LOAN_PRINCIPAL_PARAM
+    MIN_LOAN_PRINCIPAL = MIN_LOAN_PRINCIPAL_PARAM
+    MAX_LOAN_DURATION_IN_MONTHS = MAX_LOAN_DURATION_MONTHS_PARAM
+    MIN_LOAN_DURATION_IN_MONTHS = MIN_LOAN_DURATION_MONTHS_PARAM
 
     currency = models.CharField(
         choices=[(x, x) for x in ALLOWED_CURRENCIES],
@@ -187,10 +189,10 @@ class BankLoan(models.Model):
 
     interest_rate = models.FloatField()
 
-    duration_in_years = models.IntegerField(
+    duration_in_months = models.IntegerField(
         validators=(
-            MaxValueValidator(MAX_LOAN_DURATION_IN_YEARS),
-            MinValueValidator(MIN_LOAN_DURATION_IN_YEARS),
+            MaxValueValidator(MAX_LOAN_DURATION_IN_MONTHS),
+            MinValueValidator(MIN_LOAN_DURATION_IN_MONTHS),
         )
     )
 
@@ -232,4 +234,4 @@ class BankLoan(models.Model):
 
     @property
     def end_date(self):
-        return get_loan_end_date(self.open_date, self.duration_in_years)
+        return get_loan_end_date(self.open_date, self.duration_in_months)

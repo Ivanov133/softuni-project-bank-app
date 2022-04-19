@@ -138,6 +138,10 @@ nav > img {
 
 }
 
+a img {
+    width: 160px;
+    height: 100px;
+}
 
 select {
     border-radius: 10px;

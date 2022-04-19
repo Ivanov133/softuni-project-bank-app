@@ -6,7 +6,7 @@
     <script src="{% static "js/helpers.js" %}" type="module"></script>
 
     <div class="customer_card">
-        <a class="profile-anchor" href="{% url 'loan check' customer.id %}">Start loan procedure</a>
+        <a class="profile-anchor" href="{% url 'loan check' customer.id %}">Start new loan procedure</a>
 
         <img src="{{ customer.id_card.url }}">
         <button id="show-customer-details">Show customer details</button>
@@ -62,7 +62,7 @@
                     <th>{{ loan.principal_remainder | floatformat:2 }}</th>
                     <th>{{ loan.open_date }}</th>
                     <th>{{ loan.end_date }}</th>
-
+                    <a href="{% url 'loan edit' loan.id %}">Repay Loan</a>
                 </tr>
 
 

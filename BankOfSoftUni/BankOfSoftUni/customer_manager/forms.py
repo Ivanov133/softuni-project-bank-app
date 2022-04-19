@@ -20,7 +20,7 @@ class CreateLoanForm(forms.ModelForm):
         self.customer = customer
         self.initial['principal'] = self.principal
         self.initial['interest_rate'] = self.interest_rate
-        self.initial['duration_in_years'] = self.period
+        self.initial['duration_in_months'] = self.period
         self.initial['monthly_payment_value'] = self.monthly_payment
         self.fields['account_credit'].choices = [(acc, acc.account_number) for acc in self.accounts]
         for name, field in self.fields.items():
@@ -31,7 +31,7 @@ class CreateLoanForm(forms.ModelForm):
         loan = BankLoan(
             principal=self.cleaned_data['principal'],
             interest_rate=self.cleaned_data['interest_rate'],
-            duration_in_years=self.cleaned_data['duration_in_years'],
+            duration_in_years=self.cleaned_data['duration_in_months'],
             monthly_payment_value=self.cleaned_data['monthly_payment_value'],
             account_credit=self.cleaned_data['account_credit'],
             assigned_user=self.user,
@@ -62,7 +62,7 @@ class CreateLoanForm(forms.ModelForm):
             'currency',
             'principal',
             'interest_rate',
-            'duration_in_years',
+            'duration_in_months',
             'monthly_payment_value',
             'account_credit',
         )
@@ -169,3 +169,12 @@ class EditCustomerForm(forms.ModelForm):
             'date_of_birth',
             'gender',
         )
+
+
+class LoanEditForm(forms.ModelForm):
+    class Meta:
+        model = BankLoan
+        fields = ('principal',)
+        labels = {
+            'principal': 'Repay principal by'
+        }

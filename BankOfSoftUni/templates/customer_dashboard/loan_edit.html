@@ -1,0 +1,9 @@
+{% extends 'main/base.html' %}
+
+{% block page_content %}
+    <form method="POST">
+        {% csrf_token %}
+        {{ form }}
+        <button type="submit">Submit Loan Application</button>
+    </form>
+{% endblock %}

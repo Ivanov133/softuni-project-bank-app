@@ -2,7 +2,7 @@
 
 {% block page_content %}
         <form method="GET" action="{% url 'loan check' customer.id %}">
-            <label for="period">Period in years:</label>
+            <label for="period">Period in months:</label>
             <input type="number" id="period" name="period" required/>
             <label for="principal">Principal:</label>
             <input type="number" id="principal" name="principal" required/>

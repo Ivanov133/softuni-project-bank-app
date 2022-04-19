@@ -15,5 +15,5 @@ class AccountAdmin(admin.ModelAdmin):
 @admin.register(BankLoan)
 class BankLoanAdmin(admin.ModelAdmin):
     list_display = (
-    'loan_number', 'principal', 'monthly_payment_value', 'currency', 'principal_remainder', 'duration_in_years',
+    'loan_number', 'principal', 'monthly_payment_value', 'currency', 'principal_remainder', 'duration_in_months',
     'interest_rate', 'next_monthly_payment_due_date', 'is_paid_monthly')
