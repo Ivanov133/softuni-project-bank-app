@@ -4,11 +4,12 @@ from django.http import QueryDict
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import generic as views
-from BankOfSoftUni.customer_manager.forms import CreateCustomerForm, AccountOpenForm, CreateLoanForm, LoanEditForm
+from BankOfSoftUni.customer_manager.forms import CreateCustomerForm, AccountOpenForm, CreateLoanForm, LoanEditForm, \
+    AccountEditForm
 from BankOfSoftUni.customer_manager.models import IndividualCustomer, Account, BankLoan
 from BankOfSoftUni.helpers.common import loan_approve, \
     update_target_list_accounts, set_request_session_loan_params, \
-    clear_request_session_loan_params
+    clear_request_session_loan_params, set_session_error
 from BankOfSoftUni.helpers.parametrizations import MAX_LOAN_DURATION_MONTHS_PARAM, MAX_LOAN_PRINCIPAL_PARAM, \
     MIN_LOAN_PRINCIPAL_PARAM, CUSTOMER_MAX_LOAN_EXPOSITION, MIN_LOAN_DURATION_MONTHS_PARAM
 
@@ -16,6 +17,20 @@ from BankOfSoftUni.helpers.parametrizations import MAX_LOAN_DURATION_MONTHS_PARA
 class CustomerPanelView(views.DetailView):
     model = IndividualCustomer
     template_name = 'customer_dashboard/customer_details.html'
+
+
+class AccountUpdateView(LoginRequiredMixin, views.UpdateView):
+    model = Account
+    template_name = 'customer_dashboard/account_edit.html'
+    form_class = AccountEditForm
+    success_url = reverse_lazy('customer details')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['accounts'] = IndividualCustomer.objects.get(pk=self.request.pk).customer_accounts
+
+    def get_success_url(self):
+        return reverse_lazy('customer details', kwargs={'pk': self.pk_url_kwarg})
 
 
 class LoanUpdateView(LoginRequiredMixin, views.UpdateView):
@@ -45,7 +60,7 @@ class LoanCreateView(LoginRequiredMixin, views.CreateView):
         return kwargs
 
     def get_success_url(self):
-        return reverse_lazy('customer details', kwargs={'pk': self.pk_url_kwarg})
+        return reverse_lazy('customer details', kwargs={'pk': self.request.session['customer_id']})
 
 
 class CustomerRegisterView(LoginRequiredMixin, views.CreateView):
@@ -172,14 +187,18 @@ def loan_check(request, pk):
         period = request.GET.get('period')
         if period and principal:
             if MIN_LOAN_PRINCIPAL_PARAM > float(principal) or float(
-                    principal) > MAX_LOAN_PRINCIPAL_PARAM or MAX_LOAN_DURATION_MONTHS_PARAM < int(period) or int(period) < MIN_LOAN_DURATION_MONTHS_PARAM:
-                request.session[
-                    'error'] = f'Please enter valid parameters! Maximum period is {MAX_LOAN_DURATION_MONTHS_PARAM} months. Principal must be in range {MIN_LOAN_PRINCIPAL_PARAM} - {MAX_LOAN_PRINCIPAL_PARAM} BGN!'
+                    principal) > MAX_LOAN_PRINCIPAL_PARAM or MAX_LOAN_DURATION_MONTHS_PARAM < int(period) or int(
+                period) < MIN_LOAN_DURATION_MONTHS_PARAM:
+                error_message = f'Please enter valid parameters! Maximum period is {MAX_LOAN_DURATION_MONTHS_PARAM}' \
+                                f' months. Principal must be in range {MIN_LOAN_PRINCIPAL_PARAM} - {MAX_LOAN_PRINCIPAL_PARAM} BGN!'
+                set_session_error(request, error_message)
                 return redirect('loan check', customer.pk)
 
             if customer_loan_exposition + float(principal) > CUSTOMER_MAX_LOAN_EXPOSITION:
-                request.session[
-                    'error'] = f'Current loan exposition for this customer exceeded by {customer_loan_exposition + float(principal) - CUSTOMER_MAX_LOAN_EXPOSITION:.2f} BGN'
+                error_message = f'Current loan exposition for this customer exceeded by ' \
+                                f'{customer_loan_exposition + float(principal) - CUSTOMER_MAX_LOAN_EXPOSITION:.2f} BGN'
+                set_session_error(request, error_message)
+
                 return redirect('loan check', customer.pk)
 
             loan_calculator = loan_approve(customer.annual_income, float(principal), int(period))

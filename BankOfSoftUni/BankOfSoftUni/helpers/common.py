@@ -10,6 +10,13 @@ import numpy_financial as npf
 from BankOfSoftUni.tasks_app.models import UserAnnualTargets
 
 
+# Functions cover:
+#   Loan model data - needed for creation/update and model property
+#   Session storage data
+#   TargetList model update
+
+
+# Loan data based functions
 def get_next_month_date():
     date_today = datetime.date.today()
     next_month_date = date_today + relativedelta(months=1)
@@ -66,14 +73,18 @@ def loan_approve(annual_income, principal, period):
 def get_loan_monthly_payment_interest_and_principal(i_rate, period_months, principal):
     interest_payment = npf.ipmt(i_rate / 12, 1, period_months, -principal)
     principal_payment = npf.ppmt(i_rate / 12, 1, period_months, -principal)
-    
+
     return {
         'interest_payment': interest_payment,
         'principal_payment': principal_payment,
     }
 
 
-# TODO - refactor target update logic in one function
+def get_loan_table_of_payments():
+    pass
+
+
+# Target list model update related functions
 def update_target_list_customer(user_id):
     target_list = UserAnnualTargets.objects.get(pk=user_id)
     target_list.registered_clients_actual += 1
@@ -93,6 +104,7 @@ def update_target_list_loans(user_id, principal):
     target_list.save()
 
 
+# Session related functions
 def set_request_session_loan_params(request, loan_data, principal, period, customer_id):
     request.session['monthly_payment'] = loan_data['monthly_payment']
     request.session['interest_rate'] = loan_data['interest_rate']
@@ -119,3 +131,12 @@ def clear_request_session_loan_params(request):
         del request.session["period"]
     if "customer_id" in request.session.keys():
         del request.session["customer_id"]
+
+
+def clear_session_error(request):
+    if request.session.get('error', None):
+        del request.session['error']
+
+
+def set_session_error(request, message):
+    request.session['error'] = message

@@ -31,7 +31,8 @@ class CreateLoanForm(forms.ModelForm):
         loan = BankLoan(
             principal=self.cleaned_data['principal'],
             interest_rate=self.cleaned_data['interest_rate'],
-            duration_in_years=self.cleaned_data['duration_in_months'],
+            duration_in_months=self.cleaned_data['duration_in_months'],
+            duration_remainder_months=self.cleaned_data['duration_in_months'],
             monthly_payment_value=self.cleaned_data['monthly_payment_value'],
             account_credit=self.cleaned_data['account_credit'],
             assigned_user=self.user,
@@ -47,7 +48,8 @@ class CreateLoanForm(forms.ModelForm):
             # Add loan to target list
             # save loan
             account = Account.objects.get(pk=self.cleaned_data['account_credit'].id)
-            account.available_balance += calc_local_currency_to_foreign(float(self.cleaned_data['principal']), account.currency)
+            account.available_balance += calc_local_currency_to_foreign(float(self.cleaned_data['principal']),
+                                                                        account.currency)
             account.save()
 
             update_target_list_loans(self.user.id, self.cleaned_data['principal'])
@@ -151,6 +153,16 @@ class AccountOpenForm(forms.ModelForm):
             'currency',
             'debit_card',
         )
+
+
+class AccountEditForm(forms.ModelForm):
+    def __init__(self, accounts, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.accounts = accounts
+
+    class Meta:
+        model = Account
+        fields = '__all__'
 
 
 class EditCustomerForm(forms.ModelForm):

@@ -2,7 +2,8 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 from BankOfSoftUni.auth_app.models import Profile, BankUser
-from BankOfSoftUni.helpers.common import calc_foreign_currency_to_BGN, get_loan_end_date
+from BankOfSoftUni.helpers.common import calc_foreign_currency_to_BGN, get_loan_end_date, \
+    get_loan_monthly_payment_interest_and_principal
 from BankOfSoftUni.helpers.parametrizations import MAX_LOAN_DURATION_MONTHS_PARAM, MIN_LOAN_DURATION_MONTHS_PARAM, \
     MIN_LOAN_PRINCIPAL_PARAM, MAX_LOAN_PRINCIPAL_PARAM
 from BankOfSoftUni.helpers.validators import validate_only_letters
@@ -164,6 +165,8 @@ class Account(models.Model):
         return calc_foreign_currency_to_BGN(self.available_balance, self.currency)
 
 
+# Loan params are in parametrisation file
+# Logic for calculation current month payment, based on the remainder of the principal and duration - in common.py
 class BankLoan(models.Model):
     # TO DO ADD FIXTURES
     ALLOWED_CURRENCIES = (
@@ -194,6 +197,10 @@ class BankLoan(models.Model):
             MaxValueValidator(MAX_LOAN_DURATION_IN_MONTHS),
             MinValueValidator(MIN_LOAN_DURATION_IN_MONTHS),
         )
+    )
+
+    duration_remainder_months = models.IntegerField(
+        default=duration_in_months,
     )
 
     principal_remainder = models.FloatField(
@@ -227,7 +234,6 @@ class BankLoan(models.Model):
         auto_now_add=True,
     )
 
-
     @property
     def loan_number(self):
         return f'LN{self.customer_debtor.customer_number}{self.currency}'
@@ -235,3 +241,13 @@ class BankLoan(models.Model):
     @property
     def end_date(self):
         return get_loan_end_date(self.open_date, self.duration_in_months)
+
+    @property
+    def get_current_monthly_payment_value_in_principal_and_interest(self):
+        monthly_payment_data = get_loan_monthly_payment_interest_and_principal(
+            self.interest_rate,
+            self.duration_remainder_months,
+            self.principal_remainder
+        )
+
+        return monthly_payment_data
