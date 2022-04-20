@@ -7,7 +7,8 @@
 
     <div class="customer_card">
         <a class="profile-anchor" href="{% url 'loan check' customer.id %}">Start new loan procedure</a>
-        <a class="profile-anchor" href="{% url 'account edit' customer.id %}">Make a deposit in account</a>
+        <a class="profile-anchor" href="{% url 'loan edit' customer.id %}">Make loan payment</a>
+        <a class="profile-anchor" href="{% url 'account edit' customer.id %}">Account deposit</a>
 
         <img src="{{ customer.id_card.url }}">
         <button id="show-customer-details">Show customer details</button>

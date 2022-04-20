@@ -148,8 +148,8 @@ class Account(models.Model):
         on_delete=models.DO_NOTHING,
     )
 
-    def __str__(self):
-        return str(self.id)
+    # def __str__(self):
+    #     return str(self.id)
 
     # TO DO - create card and IBAN generators, depending on user branch etc.
     @property

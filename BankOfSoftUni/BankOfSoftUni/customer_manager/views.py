@@ -27,10 +27,11 @@ class AccountUpdateView(LoginRequiredMixin, views.UpdateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['accounts'] = IndividualCustomer.objects.get(pk=self.request.pk).customer_accounts
+        kwargs['accounts'] = Account.objects.all().filter(customer_id=self.object.pk)
+        return kwargs
 
     def get_success_url(self):
-        return reverse_lazy('customer details', kwargs={'pk': self.pk_url_kwarg})
+        return reverse_lazy('customer details', kwargs={'pk': self.kwargs['pk']})
 
 
 class LoanUpdateView(LoginRequiredMixin, views.UpdateView):
@@ -39,8 +40,22 @@ class LoanUpdateView(LoginRequiredMixin, views.UpdateView):
     form_class = LoanEditForm
     success_url = reverse_lazy('customer details')
 
+    # Display all loans info so that user knows how much principal is remaining
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['loans'] = BankLoan.objects.all().filter(customer_debtor=self.object.pk)
+        context['accounts'] = Account.objects.all().filter(customer_id=self.object.pk)
+
+        return context
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['accounts'] = Account.objects.all().filter(customer_id=self.object.pk)
+        kwargs['loans'] = BankLoan.objects.all().filter(customer_debtor=self.object.pk)
+        return kwargs
+
     def get_success_url(self):
-        return reverse_lazy('customer details', kwargs={'pk': self.pk_url_kwarg})
+        return reverse_lazy('customer details', kwargs={'pk': self.kwargs['pk']})
 
 
 class LoanCreateView(LoginRequiredMixin, views.CreateView):

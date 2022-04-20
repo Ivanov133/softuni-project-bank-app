@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block page_content %}
-    <form method="POST" action="{% url 'customer details' customer.id %}" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data">
         {{ form }}
         {% csrf_token %}
         <button type="submit">Commit deposit</button>

@@ -1,9 +1,67 @@
 {% extends 'main/base.html' %}
+{% load static %}
 
 {% block page_content %}
+    <link rel="stylesheet" href="{% static 'css/profile_card.css' %}">
+
     <form method="POST">
         {% csrf_token %}
         {{ form }}
         <button type="submit">Submit Loan Application</button>
     </form>
+    <table id="loan-list-table" style="display: block">
+        <tr class="main-tr">
+            <th>Loan number</th>
+            <th>Currency</th>
+            <th>Monthly payment</th>
+            <th>Next payment due date</th>
+            <th>Current month paid</th>
+            <th>Serving account</th>
+            <th>Remaining principal</th>
+            <th>Open date</th>
+            <th>End date</th>
+        </tr>
+        {% if loans %}
+            {% for loan in loans %}
+                <tr>
+                    <th>{{ loan.loan_number }}</th>
+                    <th>{{ loan.currency }}</th>
+                    <th>{{ loan.monthly_payment_value | floatformat:2 }}</th>
+                    <th>{{ loan.next_monthly_payment_due_date }}</th>
+                    <th>{{ loan.is_paid_monthly }}</th>
+                    <th>{{ loan.account_credit.account_number }}</th>
+                    <th>{{ loan.principal_remainder | floatformat:2 }}</th>
+                    <th>{{ loan.open_date }}</th>
+                    <th>{{ loan.end_date }}</th>
+                </tr>
+
+
+            {% endfor %}
+            </table>
+        {% endif %}
+    {% if accounts %}
+        <table id="accounts-list-table" style="display: block">
+            <tr class="main-tr">
+                <th>IBAN</th>
+                <th>Open Currency</th>
+                <th>Available balance</th>
+                <th>Balance in BGN</th>
+                <th>Opening date</th>
+                <th>Card Number</th>
+            </tr>
+            {% for acc in accounts %}
+
+                <tr>
+                    <th>{{ acc.account_number }}</th>
+                    <th>{{ acc.currency }}</th>
+                    <th>{{ acc.available_balance | floatformat:2 }}</th>
+                    <th>{{ acc.local_currency | floatformat:2 }}</th>
+                    <th>{{ acc.open_date }}</th>
+                    <th>{{ acc.debit_card_number }}</th>
+                </tr>
+
+
+            {% endfor %}
+        </table>
+    {% endif %}
 {% endblock %}

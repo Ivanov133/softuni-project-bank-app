@@ -1,6 +1,7 @@
 import datetime
 from django import forms
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 from BankOfSoftUni.customer_manager.models import IndividualCustomer, Account, BankLoan
 from BankOfSoftUni.helpers.common import get_next_month_date, update_target_list_customer, \
@@ -155,14 +156,76 @@ class AccountOpenForm(forms.ModelForm):
         )
 
 
+class LoanEditForm(forms.ModelForm):
+    # MAX_LOAN_ =
+    # MIN_CASH_DEPOSIT_VALUE = 1
+
+    def __init__(self, accounts, loans, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.accounts = accounts
+        self.loans = loans
+        self.fields['accounts'] = forms.ChoiceField(
+            choices=[(acc, acc.account_number) for acc in self.accounts],
+            label='Choose debit account'
+        )
+        self.fields['loans'] = forms.ChoiceField(
+            choices=[(loan, loan.loan_number) for loan in self.loans],
+            label='Choose loan'
+        )
+        self.fields['loan_payment'] = forms.IntegerField(
+            label='Choose loan payment size',
+            validators=[
+                    MinValueValidator(MIN_CASH_DEPOSIT_VALUE, f'Minimum deposit is {MIN_CASH_DEPOSIT_VALUE} currency unit'),
+                    MaxValueValidator(MAX_CASH_DEPOSIT_VALUE, f'Maximum deposit is {MAX_CASH_DEPOSIT_VALUE} currency unit')
+                ]
+        )
+
+    def clean(self):
+        cd = self.cleaned_data
+        if cd.get('password') != cd.get('password_confirm'):
+            self.add_error('password_confirm', "passwords do not match !")
+        return cd
+
+    def save(self, commit=True):
+        account = self.cleaned_data['accounts']
+        loan = self.cleaned_data['loans']
+        raise forms.ValidationError('test')
+
+    class Meta:
+        model = BankLoan
+        fields = ()
+        labels = {
+            'accounts': 'Repay principal by'
+        }
+
+
 class AccountEditForm(forms.ModelForm):
+    MAX_CASH_DEPOSIT_VALUE = 1000000
+    MIN_CASH_DEPOSIT_VALUE = 1
+    cash_deposit = forms.DecimalField(
+        validators=[
+            MinValueValidator(MIN_CASH_DEPOSIT_VALUE, f'Minimum deposit is {MIN_CASH_DEPOSIT_VALUE} currency unit'),
+            MaxValueValidator(MAX_CASH_DEPOSIT_VALUE, f'Maximum deposit is {MAX_CASH_DEPOSIT_VALUE} currency unit')
+        ],
+    )
+
     def __init__(self, accounts, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.accounts = accounts
+        self.fields['accounts'] = forms.ChoiceField(
+            choices=[(acc, acc.account_number) for acc in self.accounts]
+        )
+
+    def save(self, commit=True):
+        account = Account.objects.filter(pk=self.cleaned_data['accounts']).get()
+        account.available_balance += float(self.cleaned_data['cash_deposit'])
+
+        if commit:
+            account.save()
 
     class Meta:
         model = Account
-        fields = '__all__'
+        fields = ()
 
 
 class EditCustomerForm(forms.ModelForm):
@@ -181,12 +244,3 @@ class EditCustomerForm(forms.ModelForm):
             'date_of_birth',
             'gender',
         )
-
-
-class LoanEditForm(forms.ModelForm):
-    class Meta:
-        model = BankLoan
-        fields = ('principal',)
-        labels = {
-            'principal': 'Repay principal by'
-        }
