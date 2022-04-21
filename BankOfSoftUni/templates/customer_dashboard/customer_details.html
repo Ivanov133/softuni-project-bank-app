@@ -9,6 +9,7 @@
         <a class="profile-anchor" href="{% url 'loan check' customer.id %}">Start new loan procedure</a>
         <a class="profile-anchor" href="{% url 'loan edit' customer.id %}">Premature loan payment</a>
         <a class="profile-anchor" href="{% url 'account edit' customer.id %}">Account deposit</a>
+        <a class="profile-anchor" href="{% url 'account delete' customer.id %}">Close account</a>
 
         <img src="{{ customer.id_card.url }}">
         <button id="show-customer-details">Show customer details</button>
@@ -64,7 +65,6 @@
                     <th>{{ loan.principal_remainder | floatformat:2 }}</th>
                     <th>{{ loan.open_date }}</th>
                     <th>{{ loan.end_date }}</th>
-                    <a href="{% url 'loan edit' loan.id %}">Repay Loan</a>
                 </tr>
 
 

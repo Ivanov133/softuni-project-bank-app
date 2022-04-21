@@ -5,107 +5,13 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import generic as views
 from BankOfSoftUni.customer_manager.forms import CreateCustomerForm, AccountOpenForm, CreateLoanForm, LoanEditForm, \
-    AccountEditForm
+    AccountEditForm, AccountDeleteForm
 from BankOfSoftUni.customer_manager.models import IndividualCustomer, Account, BankLoan
 from BankOfSoftUni.helpers.common import loan_approve, \
     update_target_list_accounts, set_request_session_loan_params, \
     clear_request_session_loan_params, set_session_error
 from BankOfSoftUni.helpers.parametrizations import MAX_LOAN_DURATION_MONTHS_PARAM, MAX_LOAN_PRINCIPAL_PARAM, \
     MIN_LOAN_PRINCIPAL_PARAM, CUSTOMER_MAX_LOAN_EXPOSITION, MIN_LOAN_DURATION_MONTHS_PARAM
-
-
-class CustomerPanelView(views.DetailView):
-    model = IndividualCustomer
-    template_name = 'customer_dashboard/customer_details.html'
-
-
-class AccountUpdateView(LoginRequiredMixin, views.UpdateView):
-    model = Account
-    template_name = 'customer_dashboard/account_edit.html'
-    form_class = AccountEditForm
-    success_url = reverse_lazy('customer details')
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['accounts'] = Account.objects.all().filter(customer_id=self.object.pk)
-        return kwargs
-
-    def get_success_url(self):
-        return reverse_lazy('customer details', kwargs={'pk': self.kwargs['pk']})
-
-
-class LoanUpdateView(LoginRequiredMixin, views.UpdateView):
-    model = BankLoan
-    template_name = 'customer_dashboard/loan_edit.html'
-    form_class = LoanEditForm
-    success_url = reverse_lazy('customer details')
-
-    # Display all loans info so that user knows how much principal is remaining
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['loans'] = BankLoan.objects.all().filter(customer_debtor=self.object.pk)
-        context['accounts'] = Account.objects.all().filter(customer_id=self.object.pk)
-
-        return context
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['accounts'] = Account.objects.all().filter(customer_id=self.object.pk)
-        kwargs['loans'] = BankLoan.objects.all().filter(customer_debtor=self.object.pk)
-        return kwargs
-
-    def get_success_url(self):
-        return reverse_lazy('customer details', kwargs={'pk': self.kwargs['pk']})
-
-
-class LoanCreateView(LoginRequiredMixin, views.CreateView):
-    template_name = 'customer_dashboard/loan_create.html'
-    form_class = CreateLoanForm
-    success_url = reverse_lazy('customer details')
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['user'] = self.request.user
-        kwargs['principal'] = self.request.session.get('principal')
-        kwargs['period'] = self.request.session.get('period')
-        kwargs['monthly_payment'] = self.request.session.get('monthly_payment')
-        kwargs['interest_rate'] = self.request.session.get('interest_rate')
-        kwargs['customer'] = IndividualCustomer.objects.get(pk=self.request.session.get('customer_id'))
-        kwargs['accounts'] = Account.objects.all().filter(customer_id=kwargs['customer'].pk)
-        return kwargs
-
-    def get_success_url(self):
-        return reverse_lazy('customer details', kwargs={'pk': self.request.session['customer_id']})
-
-
-class CustomerRegisterView(LoginRequiredMixin, views.CreateView):
-    form_class = CreateCustomerForm
-    template_name = 'customer_dashboard/customer_register.html'
-    success_url = reverse_lazy('customer details')
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['user'] = self.request.user
-        return kwargs
-
-    # redirect to details page by getting pk from url
-    def form_valid(self, form):
-        customer = form.save()
-        self.pk = customer.pk
-        return super().form_valid(form)
-
-    def get_success_url(self):
-        return reverse('customer details', kwargs={'pk': self.pk})
-
-
-class CustomerEditView(LoginRequiredMixin, views.UpdateView):
-    model = IndividualCustomer
-    template_name = 'customer_dashboard/customer_edit.html'
-    fields = '__all__'
-    success_url = reverse_lazy('customer details')
-
-    def get_success_url(self):
-        return reverse_lazy('customer details', kwargs={'pk': self.object.id})
 
 
 # Search customer and redirect to details view
@@ -179,6 +85,114 @@ def customer_details(request, pk):
     }
 
     return render(request, 'customer_dashboard/customer_details.html', context)
+
+
+class CustomerRegisterView(LoginRequiredMixin, views.CreateView):
+    form_class = CreateCustomerForm
+    template_name = 'customer_dashboard/customer_register.html'
+    success_url = reverse_lazy('customer details')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    # redirect to details page by getting pk from url
+    def form_valid(self, form):
+        customer = form.save()
+        self.pk = customer.pk
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('customer details', kwargs={'pk': self.pk})
+
+
+class CustomerEditView(LoginRequiredMixin, views.UpdateView):
+    model = IndividualCustomer
+    template_name = 'customer_dashboard/customer_edit.html'
+    fields = '__all__'
+    success_url = reverse_lazy('customer details')
+
+    def get_success_url(self):
+        return reverse_lazy('customer details', kwargs={'pk': self.object.id})
+
+
+class CustomerDeleteView(LoginRequiredMixin, views.DeleteView):
+    model = IndividualCustomer
+    success_url = reverse_lazy('index')
+
+
+class AccountUpdateView(LoginRequiredMixin, views.UpdateView):
+    model = Account
+    template_name = 'customer_dashboard/account_edit.html'
+    form_class = AccountEditForm
+    success_url = reverse_lazy('customer details')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['accounts'] = Account.objects.all().filter(customer_id=self.object.pk)
+        return kwargs
+
+    def get_success_url(self):
+        return reverse_lazy('customer details', kwargs={'pk': self.kwargs['pk']})
+
+
+class AccountDeleteView(LoginRequiredMixin, views.DeleteView):
+    model = Account
+    success_url = reverse_lazy('customer details')
+    form_class = AccountDeleteForm
+    template_name = 'customer_dashboard/account_delete.html'
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['accounts'] = Account.objects.all().filter(customer_id=self.object.pk)
+        return kwargs
+
+    def get_success_url(self):
+        return reverse_lazy('customer details', kwargs={'pk': self.kwargs['pk']})
+
+
+class LoanUpdateView(LoginRequiredMixin, views.UpdateView):
+    model = BankLoan
+    template_name = 'customer_dashboard/loan_edit.html'
+    form_class = LoanEditForm
+    success_url = reverse_lazy('customer details')
+
+    # Display all loans info so that user knows how much principal is remaining
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['loans'] = BankLoan.objects.all().filter(customer_debtor=self.object.pk)
+        context['accounts'] = Account.objects.all().filter(customer_id=self.object.pk)
+
+        return context
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['accounts'] = Account.objects.all().filter(customer_id=self.object.pk)
+        kwargs['loans'] = BankLoan.objects.all().filter(customer_debtor=self.object.pk)
+        return kwargs
+
+    def get_success_url(self):
+        return reverse_lazy('customer details', kwargs={'pk': self.kwargs['pk']})
+
+
+class LoanCreateView(LoginRequiredMixin, views.CreateView):
+    template_name = 'customer_dashboard/loan_create.html'
+    form_class = CreateLoanForm
+    success_url = reverse_lazy('customer details')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        kwargs['principal'] = self.request.session.get('principal')
+        kwargs['period'] = self.request.session.get('period')
+        kwargs['monthly_payment'] = self.request.session.get('monthly_payment')
+        kwargs['interest_rate'] = self.request.session.get('interest_rate')
+        kwargs['customer'] = IndividualCustomer.objects.get(pk=self.request.session.get('customer_id'))
+        kwargs['accounts'] = Account.objects.all().filter(customer_id=kwargs['customer'].pk)
+        return kwargs
+
+    def get_success_url(self):
+        return reverse_lazy('customer details', kwargs={'pk': self.request.session['customer_id']})
 
 
 @login_required()

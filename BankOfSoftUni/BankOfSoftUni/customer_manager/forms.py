@@ -9,6 +9,89 @@ from BankOfSoftUni.helpers.common import get_next_month_date, update_target_list
     calc_local_currency_to_foreign
 
 
+class CreateCustomerForm(forms.ModelForm):
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+
+    def save(self, commit=True):
+        customer = super().save(commit=False)
+        customer.assigned_user = self.user
+
+        # Update target list in db - add one customer
+        update_target_list_customer(self.user.id)
+
+        if commit:
+            customer.save()
+
+        return customer
+
+    class Meta:
+        model = IndividualCustomer
+        this_year = datetime.date.today().year
+        year_range = [x for x in range(this_year - 100, this_year + 1)]
+        fields = (
+            'first_name',
+            'sir_name',
+            'last_name',
+            'ucn',
+            'document_number',
+            'age',
+            'occupation',
+            'annual_income',
+            'id_card',
+            'date_of_birth',
+            'gender',
+        )
+
+        widgets = {
+            'first_name': forms.TextInput(
+                attrs={
+                    'placeholder': 'Enter first name',
+                }
+            ),
+            'sir_name': forms.TextInput(
+                attrs={
+                    'placeholder': 'Enter sir name',
+                }
+            ),
+            'last_name': forms.TextInput(
+                attrs={
+                    'placeholder': 'Enter last name',
+                }
+            ),
+            'ucn': forms.NumberInput(
+                attrs={
+                    'placeholder': 'Enter Unique Citizenship Number',
+                }
+            ),
+            'document_number': forms.TextInput(
+                attrs={
+                    'placeholder': 'Enter ID/Passport number',
+                }
+            ),
+            'age': forms.NumberInput(
+                attrs={
+                    'placeholder': 'Client age',
+                }
+            ),
+            'annual_income': forms.NumberInput(
+                attrs={
+                }
+            ),
+            'date_of_birth': forms.SelectDateWidget(years=year_range),
+        }
+
+
+class AccountOpenForm(forms.ModelForm):
+    class Meta:
+        model = Account
+        fields = (
+            'currency',
+            'debit_card',
+        )
+
+
 class CreateLoanForm(forms.ModelForm):
     def __init__(self, user, principal, interest_rate, monthly_payment, customer, accounts, period, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -71,27 +154,9 @@ class CreateLoanForm(forms.ModelForm):
         )
 
 
-class CreateCustomerForm(forms.ModelForm):
-    def __init__(self, user, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.user = user
-
-    def save(self, commit=True):
-        customer = super().save(commit=False)
-        customer.assigned_user = self.user
-
-        # Update target list in db - add one customer
-        update_target_list_customer(self.user.id)
-
-        if commit:
-            customer.save()
-
-        return customer
-
+class EditCustomerForm(forms.ModelForm):
     class Meta:
         model = IndividualCustomer
-        this_year = datetime.date.today().year
-        year_range = [x for x in range(this_year - 100, this_year + 1)]
         fields = (
             'first_name',
             'sir_name',
@@ -104,56 +169,38 @@ class CreateCustomerForm(forms.ModelForm):
             'id_card',
             'date_of_birth',
             'gender',
-
         )
 
-        widgets = {
-            'first_name': forms.TextInput(
-                attrs={
-                    'placeholder': 'Enter first name',
-                }
-            ),
-            'sir_name': forms.TextInput(
-                attrs={
-                    'placeholder': 'Enter sir name',
-                }
-            ),
-            'last_name': forms.TextInput(
-                attrs={
-                    'placeholder': 'Enter last name',
-                }
-            ),
-            'ucn': forms.NumberInput(
-                attrs={
-                    'placeholder': 'Enter Unique Citizenship Number',
-                }
-            ),
-            'document_number': forms.TextInput(
-                attrs={
-                    'placeholder': 'Enter ID/Passport number',
-                }
-            ),
-            'age': forms.NumberInput(
-                attrs={
-                    'placeholder': 'Client age',
-                }
-            ),
-            'annual_income': forms.NumberInput(
-                attrs={
-                }
-            ),
-            'date_of_birth': forms.SelectDateWidget(years=year_range),
 
-        }
+class AccountEditForm(forms.ModelForm):
+    MAX_CASH_DEPOSIT_VALUE = 1000000
+    MIN_CASH_DEPOSIT_VALUE = 1
+    cash_deposit = forms.DecimalField(
+        validators=[
+            MinValueValidator(MIN_CASH_DEPOSIT_VALUE, f'Minimum deposit is {MIN_CASH_DEPOSIT_VALUE} currency unit'),
+            MaxValueValidator(MAX_CASH_DEPOSIT_VALUE, f'Maximum deposit is {MAX_CASH_DEPOSIT_VALUE} currency unit')
+        ],
+    )
 
+    def __init__(self, accounts, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.accounts = accounts
+        self.fields['accounts'] = forms.ChoiceField(
+            choices=[(acc.id, acc.account_number) for acc in self.accounts]
+        )
 
-class AccountOpenForm(forms.ModelForm):
+    def save(self, commit=True):
+        account = Account.objects.get(pk=self.cleaned_data['accounts'])
+        account.available_balance += float(self.cleaned_data['cash_deposit'])
+        if float(self.cleaned_data['cash_deposit']) < 0:
+            raise ValidationError('Invalid deposit input')
+
+        if commit:
+            account.save()
+
     class Meta:
         model = Account
-        fields = (
-            'currency',
-            'debit_card',
-        )
+        fields = ()
 
 
 class LoanEditForm(forms.ModelForm):
@@ -215,50 +262,33 @@ class LoanEditForm(forms.ModelForm):
         }
 
 
-class AccountEditForm(forms.ModelForm):
-    MAX_CASH_DEPOSIT_VALUE = 1000000
-    MIN_CASH_DEPOSIT_VALUE = 1
-    cash_deposit = forms.DecimalField(
-        validators=[
-            MinValueValidator(MIN_CASH_DEPOSIT_VALUE, f'Minimum deposit is {MIN_CASH_DEPOSIT_VALUE} currency unit'),
-            MaxValueValidator(MAX_CASH_DEPOSIT_VALUE, f'Maximum deposit is {MAX_CASH_DEPOSIT_VALUE} currency unit')
-        ],
-    )
+class CustomerDeleteForm(forms.ModelForm):
+    pass
 
+
+class AccountDeleteForm(forms.ModelForm):
     def __init__(self, accounts, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.accounts = accounts
-        self.fields['accounts'] = forms.ChoiceField(
-            choices=[(acc.id, acc.account_number) for acc in self.accounts]
+        self.fields['closing_account'] = forms.ChoiceField(
+            choices=[(acc.id, acc.account_number) for acc in self.accounts],
+            label='Choose closing account'
+        )
+
+        self.fields['transfer_account'] = forms.ChoiceField(
+            choices=[(acc.id, acc.account_number) for acc in self.accounts],
+            label='Choose account to transfer closing account balance'
         )
 
     def save(self, commit=True):
-        account = Account.objects.get(pk=self.cleaned_data['accounts'])
-        account.available_balance += float(self.cleaned_data['cash_deposit'])
-        if float(self.cleaned_data['cash_deposit']) < 0:
-            raise ValidationError('Invalid deposit input')
-
-        if commit:
-            account.save()
+        closing_account = self.cleaned_data['closing_account']
+        transfer_account = self.cleaned_data['transfer_account']
+        print('test')
 
     class Meta:
         model = Account
         fields = ()
 
 
-class EditCustomerForm(forms.ModelForm):
-    class Meta:
-        model = IndividualCustomer
-        fields = (
-            'first_name',
-            'sir_name',
-            'last_name',
-            'ucn',
-            'document_number',
-            'age',
-            'occupation',
-            'annual_income',
-            'id_card',
-            'date_of_birth',
-            'gender',
-        )
+class LoanDeleteForm(forms.ModelForm):
+    pass
