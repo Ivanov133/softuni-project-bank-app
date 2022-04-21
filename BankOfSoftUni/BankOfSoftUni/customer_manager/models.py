@@ -148,8 +148,6 @@ class Account(models.Model):
         on_delete=models.DO_NOTHING,
     )
 
-    # def __str__(self):
-    #     return str(self.id)
 
     # TO DO - create card and IBAN generators, depending on user branch etc.
     @property
@@ -236,7 +234,7 @@ class BankLoan(models.Model):
 
     @property
     def loan_number(self):
-        return f'LN{self.customer_debtor.customer_number}{self.currency}'
+        return f'LN{self.id}{self.customer_debtor.customer_number}{self.currency}'
 
     @property
     def end_date(self):

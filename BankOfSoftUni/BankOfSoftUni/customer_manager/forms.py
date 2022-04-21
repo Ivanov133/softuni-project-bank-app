@@ -157,39 +157,55 @@ class AccountOpenForm(forms.ModelForm):
 
 
 class LoanEditForm(forms.ModelForm):
-    # MAX_LOAN_ =
-    # MIN_CASH_DEPOSIT_VALUE = 1
+    MIN_LOAN_PREMATURE_PAYMENT = 1
 
     def __init__(self, accounts, loans, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.accounts = accounts
         self.loans = loans
         self.fields['accounts'] = forms.ChoiceField(
-            choices=[(acc, acc.account_number) for acc in self.accounts],
+            choices=[(acc.id, acc.account_number) for acc in self.accounts],
             label='Choose debit account'
         )
         self.fields['loans'] = forms.ChoiceField(
-            choices=[(loan, loan.loan_number) for loan in self.loans],
+            choices=[(loan.id, loan.loan_number) for loan in self.loans],
             label='Choose loan'
         )
         self.fields['loan_payment'] = forms.IntegerField(
             label='Choose loan payment size',
             validators=[
-                    MinValueValidator(MIN_CASH_DEPOSIT_VALUE, f'Minimum deposit is {MIN_CASH_DEPOSIT_VALUE} currency unit'),
-                    MaxValueValidator(MAX_CASH_DEPOSIT_VALUE, f'Maximum deposit is {MAX_CASH_DEPOSIT_VALUE} currency unit')
-                ]
+                MinValueValidator(self.MIN_LOAN_PREMATURE_PAYMENT,
+                                  f'Minimum payment is {self.MIN_LOAN_PREMATURE_PAYMENT} currency unit'),
+            ]
         )
 
     def clean(self):
-        cd = self.cleaned_data
-        if cd.get('password') != cd.get('password_confirm'):
-            self.add_error('password_confirm', "passwords do not match !")
-        return cd
+        cleaned_data = super().clean()
+        loan_payment = float(self.cleaned_data['loan_payment'])
+        account = Account.objects.get(pk=self.cleaned_data['accounts'])
+        loan = BankLoan.objects.get(pk=self.cleaned_data['loans'])
+
+        if loan_payment > loan.principal_remainder:
+            self.add_error('loan_payment', 'Loan payment cannot exceed remaining principal!')
+        if loan_payment > account.available_balance:
+            self.add_error('loan_payment', 'Account balance is not enough to make payment!')
+        return self.cleaned_data
 
     def save(self, commit=True):
-        account = self.cleaned_data['accounts']
-        loan = self.cleaned_data['loans']
-        raise forms.ValidationError('test')
+        account = Account.objects.get(pk=self.cleaned_data['accounts'])
+        loan = BankLoan.objects.get(pk=self.cleaned_data['loans'])
+        loan_payment = float(self.cleaned_data['loan_payment'])
+
+        if loan_payment > loan.principal_remainder:
+            raise ValidationError('Loan payment cannot exceed remaining principal!')
+        if loan_payment > account.available_balance:
+            raise ValidationError('Account balance is not enough to make payment!')
+
+        if commit:
+            account.available_balance -= loan_payment
+            account.save()
+            loan.principal_remainder -= loan_payment
+            loan.save()
 
     class Meta:
         model = BankLoan
@@ -213,12 +229,14 @@ class AccountEditForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.accounts = accounts
         self.fields['accounts'] = forms.ChoiceField(
-            choices=[(acc, acc.account_number) for acc in self.accounts]
+            choices=[(acc.id, acc.account_number) for acc in self.accounts]
         )
 
     def save(self, commit=True):
-        account = Account.objects.filter(pk=self.cleaned_data['accounts']).get()
+        account = Account.objects.get(pk=self.cleaned_data['accounts'])
         account.available_balance += float(self.cleaned_data['cash_deposit'])
+        if float(self.cleaned_data['cash_deposit']) < 0:
+            raise ValidationError('Invalid deposit input')
 
         if commit:
             account.save()
