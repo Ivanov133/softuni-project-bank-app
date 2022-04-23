@@ -5,7 +5,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 from BankOfSoftUni.customer_manager.models import IndividualCustomer, Account, BankLoan
 from BankOfSoftUni.helpers.common import get_next_month_date, update_target_list_customer, \
-    clear_request_session_loan_params, update_target_list_loans, \
+    update_target_list_loans, \
     calc_local_currency_to_foreign, calculate_new_loan_payment
 from BankOfSoftUni.helpers.parametrizations import ALLOWED_CURRENCIES
 
@@ -84,6 +84,28 @@ class CreateCustomerForm(forms.ModelForm):
         }
 
 
+class EditCustomerForm(forms.ModelForm):
+    class Meta:
+        model = IndividualCustomer
+        fields = (
+            'first_name',
+            'sir_name',
+            'last_name',
+            'ucn',
+            'document_number',
+            'age',
+            'occupation',
+            'annual_income',
+            'id_card',
+            'date_of_birth',
+            'gender',
+        )
+
+
+class CustomerDeleteForm(forms.ModelForm):
+    pass
+
+
 class AccountOpenForm(forms.ModelForm):
     class Meta:
         model = Account
@@ -91,6 +113,57 @@ class AccountOpenForm(forms.ModelForm):
             'currency',
             'debit_card',
         )
+
+
+class AccountDeleteForm(forms.ModelForm):
+    def __init__(self, debit_account, all_accounts, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.debit_account = debit_account
+        self.all_accounts = all_accounts
+        self.fields['all_accounts'] = forms.ChoiceField(
+            choices=[(acc.id, acc.account_number) for acc in self.all_accounts if not acc == self.debit_account],
+            label=f'Transfer {self.debit_account.account_number} balance to another account or make cash withdrawal',
+            required=False,
+        )
+        self.fields['all_accounts'].choices.append(('Cash withdrawal', 'Cash withdrawal'))
+
+    class Meta:
+        model = Account
+        fields = ()
+
+
+class AccountEditForm(forms.ModelForm):
+    MAX_CASH_DEPOSIT_VALUE = 1000000
+    MIN_CASH_DEPOSIT_VALUE = 1
+    cash_deposit = forms.DecimalField(
+        label=f'Cash deposit in same currency as account',
+        validators=[
+            MinValueValidator(MIN_CASH_DEPOSIT_VALUE, f'Minimum deposit is {MIN_CASH_DEPOSIT_VALUE} currency unit'),
+            MaxValueValidator(MAX_CASH_DEPOSIT_VALUE, f'Maximum deposit is {MAX_CASH_DEPOSIT_VALUE} currency unit')
+        ],
+    )
+
+    def __init__(self, account, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.account = account
+        self.fields['account'] = forms.CharField()
+        self.fields['account'].widget.attrs['readonly'] = True
+        self.fields['available_balance'].label = f'Current balance in {self.account.currency}'
+        self.fields['available_balance'].widget.attrs['readonly'] = True
+        self.initial['account'] = self.account.account_number
+
+    def save(self, commit=True):
+        account = self.account
+        account.available_balance += float(self.cleaned_data['cash_deposit'])
+        if float(self.cleaned_data['cash_deposit']) < 0:
+            raise ValidationError('Invalid deposit input')
+
+        if commit:
+            account.save()
+
+    class Meta:
+        model = Account
+        fields = ('available_balance',)
 
 
 class CreateLoanForm(forms.ModelForm):
@@ -155,22 +228,32 @@ class CreateLoanForm(forms.ModelForm):
         )
 
 
-class EditCustomerForm(forms.ModelForm):
-    class Meta:
-        model = IndividualCustomer
-        fields = (
-            'first_name',
-            'sir_name',
-            'last_name',
-            'ucn',
-            'document_number',
-            'age',
-            'occupation',
-            'annual_income',
-            'id_card',
-            'date_of_birth',
-            'gender',
+class LoanDeleteForm(forms.ModelForm):
+    def __init__(self, loan, accounts, *args, **kwargs):
+        super(LoanDeleteForm, self).__init__(*args, **kwargs)
+        self.loan = loan
+        self.accounts = accounts
+        self.fields['accounts'] = forms.ChoiceField(
+            choices=[(acc.id, acc.account_number) for acc in self.accounts],
+            label='Choose debit account or make deposit'
         )
+        self.fields['accounts'].choices.append(('Cash deposit', 'Cash deposit'))
+        self.fields['principal_remainder'].initial = self.loan.principal_remainder
+        self.fields['principal_remainder'].widget.attrs['readonly'] = True
+
+    def clean(self):
+        cleaned_data = super().clean()
+        principal_remainder = float(self.cleaned_data['principal_remainder'])
+        if not self.cleaned_data['accounts'] == 'Cash deposit':
+            account = Account.objects.get(pk=self.cleaned_data['accounts'])
+            if principal_remainder > account.local_currency:
+                self.add_error('principal_remainder', 'Account balance is not enough to make payment!')
+
+        return self.cleaned_data
+
+    class Meta:
+        model = BankLoan
+        fields = ('principal_remainder',)
 
 
 class LoanEditForm(forms.ModelForm):
@@ -225,12 +308,6 @@ class LoanEditForm(forms.ModelForm):
                 loan.principal_remainder - loan_payment,
                 loan.duration_remainder_months
             )
-        # elif self.cleaned_data['loan_change_type'] == 'Reduce loan end date':
-        #     new_period = calculate_new_loan_period(
-        #         loan.interest_rate / 100,
-        #         loan.principal_remainder,
-        #         loan.monthly_payment_value
-        #     )
 
         # If an account is chosen - it's balance must be reduced
         # When the loan principal is reduced, new calculations must be made,
@@ -255,86 +332,3 @@ class LoanEditForm(forms.ModelForm):
         labels = {
             'accounts': 'Repay principal by'
         }
-
-
-class CustomerDeleteForm(forms.ModelForm):
-    pass
-
-
-class AccountDeleteForm(forms.ModelForm):
-    def __init__(self, debit_account, all_accounts, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.debit_account = debit_account
-        self.all_accounts = all_accounts
-        self.fields['all_accounts'] = forms.ChoiceField(
-            choices=[(acc.id, acc.account_number) for acc in self.all_accounts if not acc == self.debit_account],
-            label=f'Transfer {self.debit_account.account_number} balance to another account or make cash withdrawal',
-            required=False,
-        )
-        self.fields['all_accounts'].choices.append(('Cash withdrawal', 'Cash withdrawal'))
-
-    class Meta:
-        model = Account
-        fields = ()
-
-
-class AccountEditForm(forms.ModelForm):
-    MAX_CASH_DEPOSIT_VALUE = 1000000
-    MIN_CASH_DEPOSIT_VALUE = 1
-    cash_deposit = forms.DecimalField(
-        label=f'Cash deposit in same currency as account',
-        validators=[
-            MinValueValidator(MIN_CASH_DEPOSIT_VALUE, f'Minimum deposit is {MIN_CASH_DEPOSIT_VALUE} currency unit'),
-            MaxValueValidator(MAX_CASH_DEPOSIT_VALUE, f'Maximum deposit is {MAX_CASH_DEPOSIT_VALUE} currency unit')
-        ],
-    )
-
-    def __init__(self, account, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.account = account
-        self.fields['account'] = forms.CharField()
-        self.fields['account'].widget.attrs['readonly'] = True
-        self.fields['available_balance'].label = f'Current balance in {self.account.currency}   '
-        self.fields['available_balance'].widget.attrs['readonly'] = True
-        self.initial['account'] = self.account.account_number
-
-    def save(self, commit=True):
-        account = self.account
-        account.available_balance += float(self.cleaned_data['cash_deposit'])
-        if float(self.cleaned_data['cash_deposit']) < 0:
-            raise ValidationError('Invalid deposit input')
-
-        if commit:
-            account.save()
-
-    class Meta:
-        model = Account
-        fields = ('available_balance',)
-
-
-class LoanDeleteForm(forms.ModelForm):
-    def __init__(self, loan, accounts, *args, **kwargs):
-        super(LoanDeleteForm, self).__init__(*args, **kwargs)
-        self.loan = loan
-        self.accounts = accounts
-        self.fields['accounts'] = forms.ChoiceField(
-            choices=[(acc.id, acc.account_number) for acc in self.accounts],
-            label='Choose debit account or make deposit'
-        )
-        self.fields['accounts'].choices.append(('Cash deposit', 'Cash deposit'))
-        self.fields['principal_remainder'].initial = self.loan.principal_remainder
-        self.fields['principal_remainder'].widget.attrs['readonly'] = True
-
-    def clean(self):
-        cleaned_data = super().clean()
-        principal_remainder = float(self.cleaned_data['principal_remainder'])
-        if not self.cleaned_data['accounts'] == 'Cash deposit':
-            account = Account.objects.get(pk=self.cleaned_data['accounts'])
-            if principal_remainder > account.available_balance:
-                self.add_error('principal_remainder', 'Account balance is not enough to make payment!')
-
-        return self.cleaned_data
-
-    class Meta:
-        model = BankLoan
-        fields = ('principal_remainder',)
