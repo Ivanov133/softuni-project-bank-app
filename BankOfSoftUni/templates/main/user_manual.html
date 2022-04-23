@@ -1,0 +1,39 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block page_content %}
+    <link rel="stylesheet" href="{% static 'css/profile_card.css' %}">
+
+    <p>MAINTAINED FUNCTIONALITIES AND VIEWS DESCRIPTION</p>
+    <p>CUSTOMER - related</p>
+    <p>Register a new CUSTOMER</p>
+    <p>CUSTOMER SEARCH - search for client by UCN/Full name/ID number - after a successful search, the displayed
+        customer can be EDITED or DETAILS page can be viewed.</p>
+    <p>CUSTOMER DETAILS - this page contains links/data about the following:</p>
+    <p>Customer personal info - displays data about the current customer</p>
+    <p>ACCOUNTS list/deposit/closure process</p>
+    <p>LOANS list/edit/closure process</p>
+    <p>ACCOUNT - related</p>
+    <p>Open new ACCOUNT with the desired currency and bank card</p>
+    <p>ACCOUNT deposit - choose what amount to deposit in selected account</p>
+    <p>ACCOUNT closure - permanently deletes an ACCOUNT - available balance can be transfered to a different ACCOUNT
+        which belongs to the same
+        customer</p>
+    <p>LOAN - related</p>
+    <p>LOAN open - Start new loan procedure from the customer details panel. After valid input of the desired principal
+        and
+        duration, a calculations by the system will be made and displayed - this includes LOAN parameters, regarding the
+        interest rate, monthly payment and the maturity date of the loan.</p>
+    <p>LOAN premature payment - select the value of the premature payment - this means that the loan's principal will be
+        reduced.
+        This requires
+        a new calculation to be made - either the monthly payment of the LOAN will be reduced, or the remaining
+        duration. Payment can be made from an existing customer account or a cash deposit.
+    </p>
+    <p>LOAN Delete - permanently deletes a loan - a source for the payment of the remaining principal must be
+        selected.</p>
+    <p>TARGET related</p>
+    <p>Target lists can be created/changed - currently the system tracks if a user creates new CUSTOMER, ACCOUNT or
+        LOAN, and if a new record is opened, the uploaded TARGET LIST (if any) will be updated. Information about target
+        completion rates by the user can be found in the PROFILE section of the logged user.</p>
+{% endblock %}

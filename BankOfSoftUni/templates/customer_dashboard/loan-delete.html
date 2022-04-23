@@ -7,8 +7,9 @@
     <form method="POST" enctype="multipart/form-data">
         {{ form }}
         {% csrf_token %}
-        <button type="submit">Close account</button>
+        <button type="submit">Close loan</button>
     </form>
+
     <table id="accounts-list-table" style="display: block">
         <tr class="main-tr">
             <th>IBAN</th>

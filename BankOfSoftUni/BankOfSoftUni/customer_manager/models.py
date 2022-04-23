@@ -88,7 +88,9 @@ class IndividualCustomer(models.Model):
 
     assigned_user = models.ForeignKey(
         BankUser,
-        on_delete=models.DO_NOTHING,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
     )
 
     registration_date = models.DateTimeField(
@@ -135,7 +137,9 @@ class Account(models.Model):
     )
     customer = models.ForeignKey(
         IndividualCustomer,
-        on_delete=models.DO_NOTHING,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
         related_name='customer_accounts',
     )
 
@@ -145,9 +149,10 @@ class Account(models.Model):
     )
     assigned_user = models.ForeignKey(
         BankUser,
-        on_delete=models.DO_NOTHING,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
     )
-
 
     # TO DO - create card and IBAN generators, depending on user branch etc.
     @property
@@ -215,17 +220,23 @@ class BankLoan(models.Model):
 
     customer_debtor = models.ForeignKey(
         IndividualCustomer,
-        on_delete=models.DO_NOTHING,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
     )
 
     assigned_user = models.ForeignKey(
         BankUser,
-        on_delete=models.DO_NOTHING,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
     )
 
     account_credit = models.ForeignKey(
         Account,
-        on_delete=models.DO_NOTHING,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
     )
 
     open_date = models.DateTimeField(
@@ -238,7 +249,7 @@ class BankLoan(models.Model):
 
     @property
     def end_date(self):
-        return get_loan_end_date(self.open_date, self.duration_in_months)
+        return get_loan_end_date(self.open_date, self.duration_remainder_months)
 
     @property
     def get_current_monthly_payment_value_in_principal_and_interest(self):

@@ -8,8 +8,6 @@
     <div class="customer_card">
         <a class="profile-anchor" href="{% url 'loan check' customer.id %}">Start new loan procedure</a>
         <a class="profile-anchor" href="{% url 'loan edit' customer.id %}">Premature loan payment</a>
-        <a class="profile-anchor" href="{% url 'account edit' customer.id %}">Account deposit</a>
-        <a class="profile-anchor" href="{% url 'account delete' customer.id %}">Close account</a>
 
         <img src="{{ customer.id_card.url }}">
         <button id="show-customer-details">Show customer details</button>
@@ -52,6 +50,8 @@
             <th>Remaining principal</th>
             <th>Open date</th>
             <th>End date</th>
+            <th>Premature payment</th>
+            <th>Close loan</th>
         </tr>
         {% if loans %}
             {% for loan in loans %}
@@ -65,6 +65,12 @@
                     <th>{{ loan.principal_remainder | floatformat:2 }}</th>
                     <th>{{ loan.open_date }}</th>
                     <th>{{ loan.end_date }}</th>
+                    <th>
+                        <a href="{% url 'loan edit' loan.pk %}">Premature payment</a>
+                    </th>
+                    <th>
+                        <a href="{% url 'loan delete' loan.pk %}">Closure start</a>
+                    </th>
                 </tr>
 
 
@@ -79,6 +85,8 @@
             <th>Balance in BGN</th>
             <th>Opening date</th>
             <th>Card Number</th>
+            <th>Deposit</th>
+            <th>Close</th>
         </tr>
         {% for acc in accounts %}
 
@@ -89,6 +97,12 @@
                 <th>{{ acc.local_currency | floatformat:2 }}</th>
                 <th>{{ acc.open_date }}</th>
                 <th>{{ acc.debit_card_number }}</th>
+                <th>
+                    <a href="{% url 'account edit' acc.id %}">Cash deposit</a>
+                </th>
+                <th>
+                    <a href="{% url 'account delete' acc.id %}">Close account</a>
+                </th>
             </tr>
 
 

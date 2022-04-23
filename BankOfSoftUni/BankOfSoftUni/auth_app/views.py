@@ -1,4 +1,4 @@
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views import generic as views
 from django.contrib.auth import views as auth_views
@@ -82,3 +82,7 @@ class ProfileDetailsView(auth_mixin.LoginRequiredMixin, views.DetailView):
         context['profile_target_data'] = profile_target_data
 
         return context
+
+
+def user_manual(request):
+    return render(request, 'main/user_manual.html')

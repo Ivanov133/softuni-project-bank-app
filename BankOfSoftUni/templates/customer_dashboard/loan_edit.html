@@ -7,7 +7,7 @@
     <form method="POST">
         {% csrf_token %}
         {{ form }}
-        <button type="submit">Submit Loan Application</button>
+        <button type="submit">Make loan payment</button>
     </form>
     <table id="loan-list-table" style="display: block">
         <tr class="main-tr">
@@ -21,24 +21,20 @@
             <th>Open date</th>
             <th>End date</th>
         </tr>
-        {% if loans %}
-            {% for loan in loans %}
-                <tr>
-                    <th>{{ loan.loan_number }}</th>
-                    <th>{{ loan.currency }}</th>
-                    <th>{{ loan.monthly_payment_value | floatformat:2 }}</th>
-                    <th>{{ loan.next_monthly_payment_due_date }}</th>
-                    <th>{{ loan.is_paid_monthly }}</th>
-                    <th>{{ loan.account_credit.account_number }}</th>
-                    <th>{{ loan.principal_remainder | floatformat:2 }}</th>
-                    <th>{{ loan.open_date }}</th>
-                    <th>{{ loan.end_date }}</th>
-                </tr>
+        <tr>
+            <th>{{ loan.loan_number }}</th>
+            <th>{{ loan.currency }}</th>
+            <th>{{ loan.monthly_payment_value | floatformat:2 }}</th>
+            <th>{{ loan.next_monthly_payment_due_date }}</th>
+            <th>{{ loan.is_paid_monthly }}</th>
+            <th>{{ loan.account_credit.account_number }}</th>
+            <th>{{ loan.principal_remainder | floatformat:2 }}</th>
+            <th>{{ loan.open_date }}</th>
+            <th>{{ loan.end_date }}</th>
+        </tr>
 
 
-            {% endfor %}
-            </table>
-        {% endif %}
+    </table>
     {% if accounts %}
         <table id="accounts-list-table" style="display: block">
             <tr class="main-tr">

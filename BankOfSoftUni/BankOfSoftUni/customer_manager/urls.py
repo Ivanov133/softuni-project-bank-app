@@ -1,7 +1,7 @@
 from django.urls import path
 
 from BankOfSoftUni.customer_manager.views import search_customer_by_parameter, CustomerRegisterView, customer_details, \
-    CustomerEditView, loan_check, LoanCreateView, LoanUpdateView, AccountUpdateView, AccountDeleteView
+    CustomerEditView, loan_check, LoanCreateView, LoanUpdateView, AccountUpdateView, AccountDeleteView, LoanDeleteView
 
 urlpatterns = (
     path('customer-details/<int:pk>/', customer_details, name='customer details'),
@@ -11,6 +11,7 @@ urlpatterns = (
     path('loan-parametrize/<int:pk>/', loan_check, name='loan check'),
     path('loan-create/<int:pk>/', LoanCreateView.as_view(), name='loan create'),
     path('loan-edit/<int:pk>/', LoanUpdateView.as_view(), name='loan edit'),
+    path('loan-delete/<int:pk>/', LoanDeleteView.as_view(), name='loan delete'),
     path('account-deposit/<int:pk>/', AccountUpdateView.as_view(), name='account edit'),
     path('account-delete/<int:pk>/', AccountDeleteView.as_view(), name='account delete'),
 )

@@ -1,4 +1,6 @@
 import datetime
+import math
+
 from dateutil.relativedelta import relativedelta
 
 from BankOfSoftUni.helpers.parametrizations import ALLOWED_CURRENCIES, \
@@ -49,6 +51,12 @@ def calc_loan_interest_rate(principal, period):
             interest_rate -= LOAN_INTEREST_RATES_DEDUCTIONS_BASED_ON_DURATION_MONTHS[threshold]
 
     return interest_rate
+
+
+
+def calculate_new_loan_payment(interest_rate, principal, period):
+    monthly_payment = npf.pmt(interest_rate / 12, period, principal) * -1
+    return f'{monthly_payment:.2f}'
 
 
 # Get all loan fields

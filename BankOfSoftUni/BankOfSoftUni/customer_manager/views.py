@@ -1,17 +1,18 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ValidationError
 from django.http import QueryDict
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import generic as views
 from BankOfSoftUni.customer_manager.forms import CreateCustomerForm, AccountOpenForm, CreateLoanForm, LoanEditForm, \
-    AccountEditForm, AccountDeleteForm
+    AccountEditForm, AccountDeleteForm, LoanDeleteForm
 from BankOfSoftUni.customer_manager.models import IndividualCustomer, Account, BankLoan
 from BankOfSoftUni.helpers.common import loan_approve, \
     update_target_list_accounts, set_request_session_loan_params, \
     clear_request_session_loan_params, set_session_error
 from BankOfSoftUni.helpers.parametrizations import MAX_LOAN_DURATION_MONTHS_PARAM, MAX_LOAN_PRINCIPAL_PARAM, \
-    MIN_LOAN_PRINCIPAL_PARAM, CUSTOMER_MAX_LOAN_EXPOSITION, MIN_LOAN_DURATION_MONTHS_PARAM
+    MIN_LOAN_PRINCIPAL_PARAM, CUSTOMER_MAX_LOAN_EXPOSITION, MIN_LOAN_DURATION_MONTHS_PARAM, ALLOWED_CURRENCIES
 
 
 # Search customer and redirect to details view
@@ -130,11 +131,52 @@ class AccountUpdateView(LoginRequiredMixin, views.UpdateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['accounts'] = Account.objects.all().filter(customer_id=self.object.pk)
+        kwargs['account'] = Account.objects.get(pk=self.object.pk)
         return kwargs
 
     def get_success_url(self):
-        return reverse_lazy('customer details', kwargs={'pk': self.kwargs['pk']})
+        pk = Account.objects.get(pk=self.kwargs['pk']).customer_id
+        return reverse_lazy('customer details', kwargs={'pk': pk})
+
+
+class LoanDeleteView(LoginRequiredMixin, views.DeleteView):
+    model = BankLoan
+    form_class = LoanDeleteForm
+    template_name = 'customer_dashboard/loan-delete.html'
+    success_url = reverse_lazy('customer details')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        # kwargs['debit_account'] = Account.objects.get(pk=self.object.pk)
+        kwargs['accounts'] = Account.objects.filter(customer_id=self.object.customer_debtor_id)
+        kwargs['loan'] = self.object
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context['accounts'] = Account.objects.filter(customer_id=self.object.customer_debtor_id)
+
+        return context
+
+    def get_success_url(self):
+        pk = BankLoan.objects.get(pk=self.kwargs['pk']).customer_debtor_id
+        return reverse_lazy('customer details', kwargs={'pk': pk})
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        if form.is_valid():
+            if not request.POST.get('all_accounts') == 'Cash withdrawal':
+                debit_account = Account.objects.get(pk=self.request.POST.get('accounts'))
+                if debit_account.currency == 'BGN':
+                    debit_account.available_balance -= float(self.object.principal_remainder)
+                else:
+                    debit_account.available_balance = (debit_account.local_currency - float(
+                        self.object.principal_remainder)) / ALLOWED_CURRENCIES[f'{debit_account.currency}']
+                debit_account.save()
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
 
 
 class AccountDeleteView(LoginRequiredMixin, views.DeleteView):
@@ -142,13 +184,41 @@ class AccountDeleteView(LoginRequiredMixin, views.DeleteView):
     success_url = reverse_lazy('customer details')
     form_class = AccountDeleteForm
     template_name = 'customer_dashboard/account_delete.html'
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['accounts'] = Account.objects.all().filter(customer_id=self.object.pk)
+        kwargs['debit_account'] = Account.objects.get(pk=self.object.pk)
+        kwargs['all_accounts'] = Account.objects.filter(customer_id=self.object.customer_id)
         return kwargs
 
     def get_success_url(self):
-        return reverse_lazy('customer details', kwargs={'pk': self.kwargs['pk']})
+        pk = Account.objects.get(pk=self.kwargs['pk']).customer_id
+        return reverse_lazy('customer details', kwargs={'pk': pk})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context['accounts'] = Account.objects.filter(customer_id=self.object.customer_id)
+
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        if form.is_valid():
+            debit_account = Account.objects.get(pk=self.kwargs['pk'])
+            debit_account_balance_in_bgn = debit_account.available_balance * ALLOWED_CURRENCIES[
+                f'{debit_account.currency}']
+            if not request.POST.get('all_accounts') == 'Cash withdrawal':
+                credit_account = Account.objects.get(pk=request.POST.get('all_accounts'))
+                if credit_account.currency == 'BGN':
+                    credit_account.available_balance += debit_account_balance_in_bgn
+                else:
+                    credit_account.available_balance += debit_account_balance_in_bgn / ALLOWED_CURRENCIES[
+                        f'{credit_account.currency}']
+                credit_account.save()
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
 
 
 class LoanUpdateView(LoginRequiredMixin, views.UpdateView):
@@ -157,22 +227,21 @@ class LoanUpdateView(LoginRequiredMixin, views.UpdateView):
     form_class = LoanEditForm
     success_url = reverse_lazy('customer details')
 
-    # Display all loans info so that user knows how much principal is remaining
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['loans'] = BankLoan.objects.all().filter(customer_debtor=self.object.pk)
-        context['accounts'] = Account.objects.all().filter(customer_id=self.object.pk)
-
+        context['loan'] = BankLoan.objects.get(pk=self.object.pk)
+        context['accounts'] = Account.objects.all().filter(customer_id=context['loan'].customer_debtor_id)
         return context
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['accounts'] = Account.objects.all().filter(customer_id=self.object.pk)
-        kwargs['loans'] = BankLoan.objects.all().filter(customer_debtor=self.object.pk)
+        kwargs['loan'] = BankLoan.objects.get(pk=self.object.pk)
+        kwargs['accounts'] = Account.objects.all().filter(customer_id=kwargs['loan'].customer_debtor_id)
         return kwargs
 
     def get_success_url(self):
-        return reverse_lazy('customer details', kwargs={'pk': self.kwargs['pk']})
+        pk = BankLoan.objects.get(pk=self.kwargs['pk']).customer_debtor.id
+        return reverse_lazy('customer details', kwargs={'pk': pk})
 
 
 class LoanCreateView(LoginRequiredMixin, views.CreateView):
