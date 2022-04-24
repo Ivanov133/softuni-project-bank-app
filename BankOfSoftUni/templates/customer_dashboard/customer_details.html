@@ -7,7 +7,9 @@
 
     <div class="customer_card">
         <a class="profile-anchor" href="{% url 'loan check' customer.id %}">Start new loan procedure</a>
-
+        {% if not accounts and not loans %}
+            <a class="profile-anchor" href="{% url 'customer delete' customer.id %}">Delete customer</a>
+        {% endif %}
         <img src="{{ customer.id_card.url }}">
         <button id="show-customer-details">Show customer details</button>
 

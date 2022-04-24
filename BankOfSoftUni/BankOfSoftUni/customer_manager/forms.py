@@ -103,7 +103,9 @@ class EditCustomerForm(forms.ModelForm):
 
 
 class CustomerDeleteForm(forms.ModelForm):
-    pass
+    class Meta:
+        model = IndividualCustomer
+        fields = ()
 
 
 class AccountOpenForm(forms.ModelForm):

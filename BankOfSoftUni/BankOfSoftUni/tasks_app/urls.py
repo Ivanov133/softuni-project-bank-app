@@ -4,4 +4,6 @@ from BankOfSoftUni.tasks_app.views import CreateTargets
 
 urlpatterns = (
     path('upload/', CreateTargets.as_view(), name='upload target'),
+    path('edit/', CreateTargets.as_view(), name='upload target'),
+    path('delete/', CreateTargets.as_view(), name='upload target'),
 )

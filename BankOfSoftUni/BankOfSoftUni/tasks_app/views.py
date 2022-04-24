@@ -10,3 +10,15 @@ class CreateTargets(LoginRequiredMixin, views.CreateView):
     form_class = CreateTargetsForm
     template_name = 'main/target_create.html'
     success_url = reverse_lazy('index')
+
+
+class EditTargetsView(LoginRequiredMixin, views.CreateView):
+    form_class = CreateTargetsForm
+    template_name = 'main/target_create.html'
+    success_url = reverse_lazy('index')
+
+
+class DeleteTargetsView(LoginRequiredMixin, views.CreateView):
+    form_class = CreateTargetsForm
+    template_name = 'main/target_create.html'
+    success_url = reverse_lazy('index')

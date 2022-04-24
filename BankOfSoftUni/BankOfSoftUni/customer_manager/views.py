@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import generic as views
 from BankOfSoftUni.customer_manager.forms import CreateCustomerForm, AccountOpenForm, CreateLoanForm, LoanEditForm, \
-    AccountEditForm, AccountDeleteForm, LoanDeleteForm
+    AccountEditForm, AccountDeleteForm, LoanDeleteForm, CustomerDeleteForm
 from BankOfSoftUni.customer_manager.models import IndividualCustomer, Account, BankLoan
 from BankOfSoftUni.helpers.common import loan_approve, \
     update_target_list_accounts, set_request_session_loan_params, \
@@ -121,6 +121,8 @@ class CustomerEditView(LoginRequiredMixin, views.UpdateView):
 class CustomerDeleteView(LoginRequiredMixin, views.DeleteView):
     model = IndividualCustomer
     success_url = reverse_lazy('index')
+    template_name = 'customer_dashboard/customer_delete.html'
+    form_class = CustomerDeleteForm
 
 
 class AccountUpdateView(LoginRequiredMixin, views.UpdateView):
@@ -288,7 +290,8 @@ def loan_check(request, pk):
                     principal) > MAX_LOAN_PRINCIPAL_PARAM or MAX_LOAN_DURATION_MONTHS_PARAM < int(period) or int(
                 period) < MIN_LOAN_DURATION_MONTHS_PARAM:
                 error_message = f'Please enter valid parameters! Maximum period is {MAX_LOAN_DURATION_MONTHS_PARAM}' \
-                                f' months. Principal must be in range {MIN_LOAN_PRINCIPAL_PARAM} - {MAX_LOAN_PRINCIPAL_PARAM} BGN!'
+                                f' months. Principal must be in range {MIN_LOAN_PRINCIPAL_PARAM} - ' \
+                                f'{MAX_LOAN_PRINCIPAL_PARAM} BGN!'
                 set_session_error(request, error_message)
                 return redirect('loan check', customer.pk)
 
