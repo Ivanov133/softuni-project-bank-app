@@ -1,0 +1,60 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block page_content %}
+    <link rel="stylesheet" href="{% static 'css/profile_card.css' %}">
+
+    <form method="POST" action="{% url 'delete target' object.pk %}">
+        {{ form }}
+        {% csrf_token %}
+        <button type="submit">Delete target list</button>
+    </form>
+    <h1>Target list completion:</h1>
+    <div id="target_list" style="display: block">
+        <table>
+            <tr class="main-tr">
+                <th>Actual registered clients</th>
+                <th>Target registered clients</th>
+                <th>Completion(%):</th>
+                <th>Actual opened accounts</th>
+                <th>Target opened accounts</th>
+                <th>Completion(%):</th>
+                <th>Actual opened loans</th>
+                <th>Target opened loans</th>
+                <th>Completion(%):</th>
+                <th>Actual opened loans size</th>
+                <th>Target opened loans size</th>
+                <th>Completion(%):</th>
+
+            </tr>
+            <tr>
+                <th>{{ object.registered_clients_target }}</th>
+                <th>{{ object.registered_clients_actual }}</th>
+                <th>{{ object.calc_customers_target_completion }}</th>
+                <th>{{ object.opened_accounts_target }}</th>
+                <th>{{ object.opened_accounts_actual }}</th>
+                <th>{{ object.calc_accounts_target_completion }}</th>
+                <th>{{ object.opened_loans_count_target }}</th>
+                <th>{{ object.opened_loans_actual }}</th>
+                <th>{{ object.calc_loans_count_target_completion }}</th>
+                <th>{{ object.total_loans_size_target }}</th>
+                <th>{{ object.total_loans_size_actual }}</th>
+                <th>{{ object.calc_loans_amount_target_completion }}</th>
+            </tr>
+        </table>
+        <table>
+            <tr class="main-tr">
+                <th>Clients completion(%):</th>
+                <th>Accounts completion(%):</th>
+                <th>Loan count completion(%):</th>
+                <th>Loan value completion(%):</th>
+            </tr>
+            <tr>
+                <th>{{ object.calc_customers_target_completion }}</th>
+                <th>{{ object.calc_accounts_target_completion }}</th>
+                <th>{{ object.calc_loans_count_target_completion }}</th>
+                <th>{{ object.calc_loans_amount_target_completion }}</th>
+            </tr>
+        </table>
+    </div>
+{% endblock %}

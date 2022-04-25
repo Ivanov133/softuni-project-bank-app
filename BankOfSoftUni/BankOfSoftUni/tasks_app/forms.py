@@ -18,4 +18,4 @@ class EditTargetsForm(forms.ModelForm):
 class DeleteTargetsForm(forms.ModelForm):
     class Meta:
         model = UserAnnualTargets
-        fields = '__all__'
+        fields = ()

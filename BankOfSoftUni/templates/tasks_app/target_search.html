@@ -1,0 +1,29 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block page_content %}
+    <link rel="stylesheet" href="{% static 'css/table-info.css' %}">
+    <div id="searchbar">
+        <form method="GET" action="{% url 'search target' %}">
+            <label for="username">Search target by USERNAME:</label>
+            <input type="text" name="username"/>
+            <button type="submit">Search target list</button>
+        </form>
+    </div>
+    {% if profile %}
+
+        <table>
+            <tr>
+                <td>
+                    <a class="sidebar-anchor" href="{% url 'edit target' profile.pk %}">Edit target list for
+                        user {{ profile.user.username }}</a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a class="sidebar-anchor" href="{% url 'delete target' profile.pk %}">Delete target list for
+                        user {{ profile.user.username }}</a>
+                </td>
+            </tr>
+        </table>
+    {% endif %}
+{% endblock %}

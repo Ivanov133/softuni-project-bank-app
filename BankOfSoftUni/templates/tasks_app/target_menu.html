@@ -1,0 +1,16 @@
+{% extends 'main/base.html' %}
+
+{% block page_content %}
+    <table>
+        <tr>
+            <td>
+                <a class="sidebar-anchor" href="{% url 'upload target' %}">Upload new target list</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a class="sidebar-anchor" href="{% url 'search target' %}">Search target list</a>
+            </td>
+        </tr>
+    </table>
+{% endblock %}

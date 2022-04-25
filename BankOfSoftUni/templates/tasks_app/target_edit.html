@@ -1,0 +1,9 @@
+{% extends 'main/base.html' %}
+
+{% block page_content %}
+    <form method="POST">
+        {{ form }}
+        {% csrf_token %}
+        <button type="submit">Edit target list</button>
+    </form>
+{% endblock %}
