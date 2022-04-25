@@ -109,6 +109,9 @@ class IndividualCustomer(models.Model):
     def customer_number(self):
         return f'CUS{1000 + self.id}'
 
+    def __str__(self):
+        return f'{self.customer_number} - {self.full_name}'
+
 
 class Account(models.Model):
     ALLOWED_CURRENCIES = (
@@ -171,7 +174,6 @@ class Account(models.Model):
 # Loan params are in parametrisation file
 # Logic for calculation current month payment, based on the remainder of the principal and duration - in common.py
 class BankLoan(models.Model):
-    # TO DO ADD FIXTURES
     ALLOWED_CURRENCIES = (
         'BGN',
     )
@@ -245,7 +247,7 @@ class BankLoan(models.Model):
 
     @property
     def loan_number(self):
-        return f'LN{self.id}{self.customer_debtor.customer_number}{self.currency}'
+        return f'LN{self.id + 1000}{self.currency}'
 
     @property
     def end_date(self):

@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views import generic as views
@@ -86,3 +87,8 @@ class ProfileDetailsView(auth_mixin.LoginRequiredMixin, views.DetailView):
 
 def user_manual(request):
     return render(request, 'main/user_manual.html')
+
+
+def internal_error(request, context):
+    context = context
+    return render(request, 'main/exception_page.html', context)

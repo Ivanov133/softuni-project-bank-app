@@ -211,8 +211,10 @@ class CreateLoanForm(forms.ModelForm):
             account.available_balance += calc_local_currency_to_foreign(float(self.cleaned_data['principal']),
                                                                         account.currency)
             account.save()
-
-            update_target_list_loans(self.user.id, self.cleaned_data['principal'])
+            try:
+                update_target_list_loans(self.user.id, self.cleaned_data['principal'])
+            except:
+                pass
 
             loan.save()
 
