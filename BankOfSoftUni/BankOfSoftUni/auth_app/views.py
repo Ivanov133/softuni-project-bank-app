@@ -91,4 +91,4 @@ def user_manual(request):
 
 def internal_error(request, context):
     context = context
-    return render(request, 'main/exception_page.html', context)
+    return render(request, 'main/error_page.html', context)

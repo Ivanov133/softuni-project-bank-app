@@ -1,8 +1,10 @@
 import datetime
-import math
 
 from dateutil.relativedelta import relativedelta
+from django.shortcuts import redirect
 
+from BankOfSoftUni.auth_app.models import Profile
+from BankOfSoftUni.auth_app.views import internal_error
 from BankOfSoftUni.helpers.parametrizations import ALLOWED_CURRENCIES, \
     LOAN_INTEREST_RATES_BASED_ON_PRINCIPAL_MIN_THRESHOLD_BGN, LOAN_INTEREST_RATES_DEDUCTIONS_BASED_ON_DURATION_MONTHS, \
     MAX_INCOME_SHARE_AS_MONTHLY_LOAN_PAYMENT
@@ -13,9 +15,38 @@ from BankOfSoftUni.tasks_app.models import UserAnnualTargets
 
 
 # Functions cover:
+#   User permissions decorator
 #   Loan model data - needed for creation/update and model property
 #   Session storage data
 #   TargetList model update
+
+
+# Permissions decorator
+def required_permissions(required_permissions):
+    def decorator(view):
+        def wrapper(request, *args, **kwargs):
+            user = request.user
+            profile = None
+            try:
+                profile = Profile.objects.get(pk=user.id)
+            except Profile.DoesNotExist:
+                pass
+            context = {}
+            if not user.is_authenticated:
+                context['error'] = 'User is not authenticated'
+                return internal_error(request, context)
+            if not user.has_perms(required_permissions):
+                context[
+                    'error'] = f'Access denied. User {request.user.username} has no permission to ' \
+                               f'access/alter this data. Currently the user has access rights based on ' \
+                               f'his/her role - "{profile.employee_role}". Please contact administrator ' \
+                               f'if access needs to be given.'
+                return internal_error(request, context)
+            return view(request, *args, **kwargs)
+
+        return wrapper
+
+    return decorator
 
 
 # Loan data based functions
@@ -38,7 +69,6 @@ def calc_foreign_currency_to_BGN(value, currency):
     return value * ALLOWED_CURRENCIES[currency]
 
 
-# Based on parametrization
 def calc_loan_interest_rate(principal, period):
     interest_rate = 0
     # Calculate interest based on principal
@@ -51,7 +81,6 @@ def calc_loan_interest_rate(principal, period):
             interest_rate -= LOAN_INTEREST_RATES_DEDUCTIONS_BASED_ON_DURATION_MONTHS[threshold]
 
     return interest_rate
-
 
 
 def calculate_new_loan_payment(interest_rate, principal, period):
@@ -92,24 +121,35 @@ def get_loan_table_of_payments():
     pass
 
 
-# Target list model update related functions
+# Target list model update related functions - if no target list exist
+# for the logged user, nothing should happen
 def update_target_list_customer(user_id):
-    target_list = UserAnnualTargets.objects.get(pk=user_id)
-    target_list.registered_clients_actual += 1
-    target_list.save()
+    try:
+        target_list = UserAnnualTargets.objects.get(pk=user_id)
+        target_list.registered_clients_actual += 1
+        target_list.save()
+    except UserAnnualTargets.DoesNotExist:
+        pass
 
 
 def update_target_list_accounts(user_id):
-    target_list = UserAnnualTargets.objects.get(pk=user_id)
-    target_list.opened_accounts_actual += 1
-    target_list.save()
+    try:
+
+        target_list = UserAnnualTargets.objects.get(pk=user_id)
+        target_list.opened_accounts_actual += 1
+        target_list.save()
+    except UserAnnualTargets.DoesNotExist:
+        pass
 
 
 def update_target_list_loans(user_id, principal):
-    target_list = UserAnnualTargets.objects.get(pk=user_id)
-    target_list.opened_loans_actual += 1
-    target_list.total_loans_size_actual += float(principal)
-    target_list.save()
+    try:
+        target_list = UserAnnualTargets.objects.get(pk=user_id)
+        target_list.opened_loans_actual += 1
+        target_list.total_loans_size_actual += float(principal)
+        target_list.save()
+    except UserAnnualTargets.DoesNotExist:
+        pass
 
 
 # Session related functions
