@@ -23,6 +23,7 @@ class BankUser(auth_models.AbstractUser, auth_models.PermissionsMixin):
     objects = BankUserManager()
 
 
+# Based on employee positions, user should be given proper system rights
 class Profile(models.Model):
     FIRST_NAME_MIN_LENGTH = 2
     FIRST_NAME_MAX_LENGTH = 40
@@ -40,7 +41,7 @@ class Profile(models.Model):
         'Credit consultant',
         'Branch manager',
         'Moderator',
-        'ADMINISTRATOR',
+        'ADMINISTRATOR'
     )]
 
     first_name = models.CharField(
@@ -90,4 +91,3 @@ class Profile(models.Model):
     @property
     def full_name(self):
         return f'{self.first_name} {self.last_name}'
-

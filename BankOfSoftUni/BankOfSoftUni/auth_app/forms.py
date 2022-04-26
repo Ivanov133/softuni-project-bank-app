@@ -19,8 +19,13 @@ class CreateProfileForm(auth_forms.UserCreationForm):
 
     )
     profile_pic = forms.ImageField()
+
     gender = forms.ChoiceField(
         choices=Profile.GENDERS,
+    )
+
+    employee_role = forms.ChoiceField(
+        choices=Profile.EMPLOYEE_POSITIONS,
     )
 
     def save(self, commit=True):

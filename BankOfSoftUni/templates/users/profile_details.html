@@ -9,8 +9,8 @@
     <div class="profile_card">
         <img alt="" src="{{ profile.profile_pic.url }}">
         <h1>{{ profile.full_name }}</h1>
-        <p>{{ profile.employee_role }}</p>
-        <p>User: {{ profile.user.username }}</p>
+        <p>Username: {{ profile.user.username }}</p>
+        <p>Role: {{ profile.employee_role }}</p>
         <button id="show_target_list">Show target completion</button>
         <a class="profile-anchor" href="{% url 'profile edit' pk %}">Edit profile</a>
 

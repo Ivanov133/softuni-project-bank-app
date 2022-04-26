@@ -7,7 +7,10 @@ def handle_exceptions_middleware(get_response):
     def middleware(request):
         response = get_response(request)
         context = {}
-        if response.status_code == 500:
+        if 400 <= response.status_code < 500:
+            context['error'] = f'{response.status_code}: {response.reason_phrase}'
+            return internal_error(request, context)
+        elif response.status_code == 500:
             if request.method == 'GET':
                 for form_input_field in QueryDict.dict(request.GET):
                     searched_value = request.GET.get(f'{form_input_field}')
@@ -15,11 +18,12 @@ def handle_exceptions_middleware(get_response):
                     if 'customer-search' in request.path or 'targets/search' in request.path:
                         context['error'] = f'No data found for {search_by} "{searched_value}"' \
                                            f'. Please try a different search'
-
-            return internal_error(request, context)
+                        return internal_error(request, context)
 
         elif response.status_code > 500:
             context['error'] = 'System error. Please contact administrator'
+            return internal_error(request, context)
+
         return response
 
     return middleware

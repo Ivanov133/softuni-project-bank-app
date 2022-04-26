@@ -1,6 +1,6 @@
-from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
 from django.views import generic as views
 from django.contrib.auth import views as auth_views
 from django.contrib.auth import logout
@@ -17,7 +17,7 @@ from BankOfSoftUni.tasks_app.models import UserAnnualTargets
 class ProfileEditView(views.UpdateView):
     model = Profile
     template_name = 'users/profile_edit.html'
-    fields = '__all__'
+    fields = ('first_name', 'last_name', 'profile_pic',)
     success_url = reverse_lazy('upload target')
 
     def get_success_url(self):

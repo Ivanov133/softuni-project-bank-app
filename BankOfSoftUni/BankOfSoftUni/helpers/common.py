@@ -1,7 +1,6 @@
 import datetime
 
 from dateutil.relativedelta import relativedelta
-from django.shortcuts import redirect
 
 from BankOfSoftUni.auth_app.models import Profile
 from BankOfSoftUni.auth_app.views import internal_error
@@ -41,6 +40,7 @@ def required_permissions(required_permissions):
                                f'access/alter this data. Currently the user has access rights based on ' \
                                f'his/her role - "{profile.employee_role}". Please contact administrator ' \
                                f'if access needs to be given.'
+
                 return internal_error(request, context)
             return view(request, *args, **kwargs)
 
