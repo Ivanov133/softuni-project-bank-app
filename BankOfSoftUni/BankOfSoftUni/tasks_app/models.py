@@ -13,7 +13,7 @@ class UserAnnualTargets(models.Model):
 
     registered_clients_target = models.IntegerField(
         validators=(
-            MinValueValidator(0),
+            MinValueValidator(1),
         )
     )
 
@@ -25,7 +25,7 @@ class UserAnnualTargets(models.Model):
 
     opened_accounts_target = models.IntegerField(
         validators=(
-            MinValueValidator(0),
+            MinValueValidator(1),
         )
     )
 
@@ -37,7 +37,7 @@ class UserAnnualTargets(models.Model):
 
     opened_loans_count_target = models.IntegerField(
         validators=(
-            MinValueValidator(0),
+            MinValueValidator(1),
         )
     )
 
@@ -49,7 +49,7 @@ class UserAnnualTargets(models.Model):
 
     total_loans_size_target = models.FloatField(
         validators=(
-            MinValueValidator(0),
+            MinValueValidator(1),
         )
     )
 

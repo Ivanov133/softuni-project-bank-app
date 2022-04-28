@@ -1,5 +1,6 @@
 from django import forms
 
+from BankOfSoftUni.auth_app.models import Profile
 from BankOfSoftUni.tasks_app.models import UserAnnualTargets
 
 

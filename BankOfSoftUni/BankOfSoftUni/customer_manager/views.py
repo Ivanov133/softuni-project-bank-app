@@ -300,6 +300,7 @@ def loan_check(request, pk):
         customer_loan_exposition += loan.principal
 
     # GET loan principal and duration - check values with parametrization table
+    # Check if customer can apply for the loan - if he has an account, if his exposition meets requirements
     # Pass them on to calculation functions to get the needed variables for creating the loan
     # SET session data to pass along to the create view
 
@@ -320,6 +321,11 @@ def loan_check(request, pk):
             if customer_loan_exposition + float(principal) > CUSTOMER_MAX_LOAN_EXPOSITION:
                 error_message = f'Current loan exposition for this customer exceeded by ' \
                                 f'{customer_loan_exposition + float(principal) - CUSTOMER_MAX_LOAN_EXPOSITION:.2f} BGN'
+                set_session_error(request, error_message)
+
+                return redirect('loan check', customer.pk)
+            if len(customer.customer_accounts.values_list()) == 0:
+                error_message = f'Customer {customer.full_name} must have an open account in order to receive loan!'
                 set_session_error(request, error_message)
 
                 return redirect('loan check', customer.pk)

@@ -19,7 +19,7 @@ class CreateCustomerForm(forms.ModelForm):
         customer = super().save(commit=False)
         customer.assigned_user = self.user
 
-        # Update target list in db - add one customer
+        # Update target list in db - add customer
         update_target_list_customer(self.user.id)
 
         if commit:
